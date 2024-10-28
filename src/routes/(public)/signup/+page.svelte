@@ -1,5 +1,5 @@
 <script>
-	import SignupForm from '$lib/components/signup-form.svelte';
+	import SignupForm from './signup-form.svelte';
 </script>
 
 <div class="flex h-screen w-full items-center justify-center px-4">
