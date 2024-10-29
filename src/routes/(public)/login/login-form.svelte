@@ -6,8 +6,7 @@
 	import { zod } from 'sveltekit-superforms/adapters';
 	import { loginSchema, type LoginSchema } from './schema';
 	import { toast } from 'svelte-sonner';
-	import axios from '$lib/axios';
-	import { token } from '$lib/auth.svelte';
+	import { auth } from '$lib/auth.svelte';
 	import { goto } from '$app/navigation';
 
 	const form = superForm(defaults(zod(loginSchema)), {
@@ -25,19 +24,20 @@
 	const { form: formData, enhance } = form;
 
 	const login = async (data: { username: string; password: string }) => {
-		const response = await axios.post('/auth/login', data);
+		const loginResponse = await auth.login(data);
 
-		if (response.status === 200) {
-			const accessToken = response.data.data.accessToken;
-
-			if (!accessToken) {
-				return;
-			}
-
-			token.set(accessToken);
+		if (loginResponse.success) {
+			toast.success('Login successful');
 			goto('/app');
 		} else {
-			toast.error('Login failed');
+			const errors = loginResponse.errors;
+
+			toast.error(loginResponse.message);
+
+			if (errors) {
+				toast.error('Login failed');
+				toast.error(errors.join(', '));
+			}
 		}
 	};
 </script>

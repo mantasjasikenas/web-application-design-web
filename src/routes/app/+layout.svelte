@@ -1,14 +1,15 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
-	import { token } from '$lib/auth.svelte';
+	import { auth } from '$lib/auth.svelte';
 	import SidebarPage from '$lib/components/sidebar-page.svelte';
 
 	let { children } = $props();
 </script>
 
-{#if token.decodedToken}
+{#if auth.isLoading}
+	<div class="flex h-screen items-center justify-center">Loading...</div>
+{:else if auth.decodedToken}
 	<SidebarPage>
-		{token.decodedToken.sub}
 		{@render children?.()}
 	</SidebarPage>
 {:else}

@@ -1,40 +1,88 @@
+/* eslint-disable prefer-const */
 import { browser } from '$app/environment';
-import { jwtDecode, type JwtPayload } from 'jwt-decode';
+import { jwtDecode } from 'jwt-decode';
+import axios from './axios';
+import type { ApiResponse, Token } from './types';
 
-export type User = {
-	username: string;
-	roles: string[];
-};
+export const ACCESS_TOKEN_KEY = 'accessToken';
 
-export interface Token extends JwtPayload {
-	user: User;
-}
-
-// TODO: loading state and rename
-function createAccessToken() {
-	let accessToken = $state<string | null>(browser ? localStorage.getItem('accessToken') : null);
-	// eslint-disable-next-line prefer-const
+function createAuth() {
+	let isLoading = $state(false);
+	let accessToken = $state<string | null>(null);
 	let decodedToken = $derived.by(() => {
-		if (!accessToken) return null;
-
-		return jwtDecode<Token>(accessToken);
+		return accessToken ? jwtDecode<Token>(accessToken) : null;
 	});
 
-	function setAccessToken(value: string | null) {
-		console.log('setToken', value);
+	async function initiliaze() {
+		if (!browser) {
+			return;
+		}
 
+		isLoading = true;
+
+		const token = localStorage.getItem(ACCESS_TOKEN_KEY);
+
+		if (token) {
+			setAccessToken(token);
+		}
+
+		isLoading = false;
+	}
+
+	function setAccessToken(value: string | null) {
 		if (!browser) {
 			accessToken = value;
 			return;
 		}
 
 		if (value) {
-			localStorage.setItem('accessToken', value);
+			localStorage.setItem(ACCESS_TOKEN_KEY, value);
 		} else {
-			localStorage.removeItem('accessToken');
+			localStorage.removeItem(ACCESS_TOKEN_KEY);
 		}
 
 		accessToken = value;
+	}
+
+	async function login(data: { username: string; password: string }): Promise<ApiResponse> {
+		const response = await axios.post('/auth/login', data);
+
+		if (response.status === 200) {
+			const accessToken = response.data.data.accessToken;
+
+			if (!accessToken) {
+				return response.data as ApiResponse;
+			}
+
+			setAccessToken(accessToken);
+			return response.data as ApiResponse;
+		} else {
+			return response.data as ApiResponse;
+		}
+	}
+
+	async function register(data: {
+		username: string;
+		email: string;
+		password: string;
+	}): Promise<ApiResponse> {
+		const response = await axios.post('/auth/register', data);
+
+		return response.data as ApiResponse;
+	}
+
+	async function logout(): Promise<ApiResponse> {
+		const response = await axios.post<ApiResponse>('/auth/logout', {
+			headers: {
+				Authorization: `Bearer ${accessToken}`
+			}
+		});
+
+		if (response.status === 200) {
+			setAccessToken(null);
+		}
+
+		return response.data;
 	}
 
 	return {
@@ -44,8 +92,13 @@ function createAccessToken() {
 		get decodedToken() {
 			return decodedToken;
 		},
-		set: setAccessToken
+		setAccessToken,
+		register,
+		login,
+		logout,
+		isLoading,
+		initiliaze
 	};
 }
 
-export const token = createAccessToken();
+export const auth = createAuth();

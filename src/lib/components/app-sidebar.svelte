@@ -1,6 +1,6 @@
 <script lang="ts" module>
 	import { ChartPie, Frame, Home, Settings, Map } from 'lucide-svelte';
-	import { token } from '$lib/auth.svelte';
+	import { auth } from '$lib/auth.svelte';
 
 	const data = {
 		navMain: [
@@ -46,6 +46,7 @@
 	import Command from 'lucide-svelte/icons/command';
 	import type { ComponentProps } from 'svelte';
 	import ToggleTheme from './toggle-theme.svelte';
+	import Logout from './logout-button.svelte';
 
 	let { ref = $bindable(null), ...restProps }: ComponentProps<typeof Sidebar.Root> = $props();
 </script>
@@ -53,7 +54,7 @@
 <Sidebar.Root bind:ref variant="inset" {...restProps}>
 	<Sidebar.Header>
 		<Sidebar.Menu>
-			<Sidebar.MenuItem class="flex flex-row items-center justify-center">
+			<Sidebar.MenuItem class="flex flex-row items-center justify-center gap-3">
 				<Sidebar.MenuButton size="lg">
 					{#snippet child({ props })}
 						<a href="##" {...props}>
@@ -70,6 +71,7 @@
 					{/snippet}
 				</Sidebar.MenuButton>
 				<ToggleTheme />
+				<Logout />
 			</Sidebar.MenuItem>
 		</Sidebar.Menu>
 	</Sidebar.Header>
@@ -79,8 +81,12 @@
 		<NavSecondary items={data.navSecondary} class="mt-auto" />
 	</Sidebar.Content>
 	<Sidebar.Footer>
-		{#if token.decodedToken?.user}
-			<NavUser user={token.decodedToken?.user} />
+		{#if auth.decodedToken?.sub}
+			<NavUser
+				id={auth.decodedToken.sub}
+				roles={auth.decodedToken.roles}
+				username={auth.decodedToken.username}
+			/>
 		{/if}
 	</Sidebar.Footer>
 </Sidebar.Root>
