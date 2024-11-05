@@ -13,3 +13,19 @@ export type ApiResponse<T = any> = {
 	data?: T | null;
 	errors?: string[];
 };
+
+export type Project = {
+	id: number;
+	name: string;
+	description: string;
+	createdAt: string;
+	createdBy: string;
+};
+
+export type Section = {
+	id: number;
+	projectId: number;
+	name: string;
+	createdBy: string;
+	createdAt: string;
+};

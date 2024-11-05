@@ -8,7 +8,7 @@
 	import Folder from 'lucide-svelte/icons/folder';
 	import Share from 'lucide-svelte/icons/share';
 	import Trash2 from 'lucide-svelte/icons/trash-2';
-	import type { ApiResponse } from '$lib/types';
+	import type { ApiResponse, Project } from '$lib/types';
 	import Skeleton from './ui/skeleton/skeleton.svelte';
 
 	let isLoading = $state(false);
@@ -18,14 +18,6 @@
 			url: string;
 		}[]
 	>([]);
-
-	type Project = {
-		id: number;
-		name: string;
-		description: string;
-		createdAt: string;
-		createdBy: string;
-	};
 
 	const fetchProjects = async () => {
 		const { data } = await axios.get<ApiResponse<Project[]>>('/projects');
