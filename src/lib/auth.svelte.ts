@@ -55,10 +55,25 @@ function createAuth() {
 			}
 
 			setAccessToken(accessToken);
-			return response.data as ApiResponse;
-		} else {
-			return response.data as ApiResponse;
 		}
+
+		return response.data as ApiResponse;
+	}
+
+	async function refreshToken(): Promise<ApiResponse> {
+		const response = await axios.post<ApiResponse>('/auth/accessToken');
+
+		if (response.status === 200) {
+			const accessToken = response.data.data.accessToken;
+
+			if (!accessToken) {
+				return response.data as ApiResponse;
+			}
+
+			setAccessToken(accessToken);
+		}
+
+		return response.data as ApiResponse;
 	}
 
 	async function register(data: {
@@ -72,13 +87,18 @@ function createAuth() {
 	}
 
 	async function logout(): Promise<ApiResponse> {
-		const response = await axios.post<ApiResponse>('/auth/logout', {
-			headers: {
-				Authorization: `Bearer ${accessToken}`
-			}
-		});
+		if (accessToken === null) {
+			return {
+				success: false,
+				status: '401',
+				message: 'Unauthorized'
+			};
+		}
 
-		if (response.status === 200) {
+		const response = await axios.post<ApiResponse>('/auth/logout');
+
+		/* eslint-disable no-constant-condition */
+		if (response.status === 200 || true) {
 			setAccessToken(null);
 		}
 
@@ -97,7 +117,8 @@ function createAuth() {
 		login,
 		logout,
 		isLoading,
-		initiliaze
+		initiliaze,
+		refreshToken
 	};
 }
 
