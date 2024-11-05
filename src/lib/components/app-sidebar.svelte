@@ -1,5 +1,5 @@
 <script lang="ts" module>
-	import { ChartPie, Frame, Home, Settings, Map } from 'lucide-svelte';
+	import { Home } from 'lucide-svelte';
 	import { auth } from '$lib/auth.svelte';
 
 	const data = {
@@ -9,29 +9,6 @@
 				url: '/app',
 				icon: Home,
 				isActive: true
-			},
-			{
-				title: 'Settings',
-				url: '/app/settings',
-				icon: Settings
-			}
-		],
-		navSecondary: [],
-		projects: [
-			{
-				name: 'Design Engineering',
-				url: '#',
-				icon: Frame
-			},
-			{
-				name: 'Sales & Marketing',
-				url: '#',
-				icon: ChartPie
-			},
-			{
-				name: 'Travel',
-				url: '#',
-				icon: Map
 			}
 		]
 	};
@@ -40,7 +17,6 @@
 <script lang="ts">
 	import NavMain from '$lib/components/nav-main.svelte';
 	import NavProjects from '$lib/components/nav-projects.svelte';
-	import NavSecondary from '$lib/components/nav-secondary.svelte';
 	import NavUser from '$lib/components/nav-user.svelte';
 	import * as Sidebar from '$lib/components/ui/sidebar/index.js';
 	import Command from 'lucide-svelte/icons/command';
@@ -77,8 +53,7 @@
 	</Sidebar.Header>
 	<Sidebar.Content>
 		<NavMain items={data.navMain} />
-		<NavProjects projects={data.projects} />
-		<NavSecondary items={data.navSecondary} class="mt-auto" />
+		<NavProjects />
 	</Sidebar.Content>
 	<Sidebar.Footer>
 		{#if auth.decodedToken?.sub}
