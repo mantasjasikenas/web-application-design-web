@@ -13,7 +13,7 @@ function createAuth() {
 		return accessToken ? jwtDecode<Token>(accessToken) : null;
 	});
 
-	async function initiliaze() {
+	async function initialize() {
 		if (!browser) {
 			return;
 		}
@@ -117,7 +117,7 @@ function createAuth() {
 		login,
 		logout,
 		isLoading,
-		initiliaze,
+		initialize,
 		refreshToken
 	};
 }

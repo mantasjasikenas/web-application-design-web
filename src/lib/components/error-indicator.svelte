@@ -9,7 +9,7 @@
 	import { Button } from '$lib/components/ui/button';
 	import { goto } from '$app/navigation';
 	import { fly, fade, scale } from 'svelte/transition';
-	import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '$lib/components/ui/card';
+	import { Card, CardContent, CardFooter, CardHeader } from '$lib/components/ui/card';
 	import { AlertCircle } from 'lucide-svelte';
 
 	let { status, message }: ErrorProps = $props();

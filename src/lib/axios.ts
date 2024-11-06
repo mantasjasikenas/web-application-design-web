@@ -36,7 +36,7 @@ axiosInstance.interceptors.response.use(
 				const response = await auth.refreshToken();
 
 				if (!response.success) {
-					return Promise.reject(response);
+					throw new Error(response.message);
 				}
 
 				const accessToken = response.data.accessToken;
@@ -45,7 +45,7 @@ axiosInstance.interceptors.response.use(
 
 				return axiosInstance(originalRequest);
 			} catch (refreshError) {
-				console.error('Token refresh failed:', refreshError);
+				console.error('Token refresh failed');
 
 				auth.setAccessToken(null);
 

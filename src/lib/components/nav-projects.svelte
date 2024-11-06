@@ -1,45 +1,37 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
 	import axios from '$lib/axios';
-	import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js';
-	import * as Sidebar from '$lib/components/ui/sidebar/index.js';
 	import { useSidebar } from '$lib/components/ui/sidebar/index.js';
+	import * as Sidebar from '$lib/components/ui/sidebar/index.js';
+	import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js';
 	import Ellipsis from 'lucide-svelte/icons/ellipsis';
 	import Folder from 'lucide-svelte/icons/folder';
 	import Share from 'lucide-svelte/icons/share';
 	import Trash2 from 'lucide-svelte/icons/trash-2';
 	import type { ApiResponse, Project } from '$lib/types';
 	import Skeleton from './ui/skeleton/skeleton.svelte';
-
-	let isLoading = $state(false);
-	let projects = $state<
-		{
-			name: string;
-			url: string;
-		}[]
-	>([]);
-
-	const fetchProjects = async () => {
-		const { data } = await axios.get<ApiResponse<Project[]>>('/projects');
-
-		if (!data.data) {
-			return;
-		}
-
-		projects = data.data.map((project) => ({
-			name: project.name,
-			url: `/app/projects/${project.id}`,
-			icon: Folder
-		}));
-	};
-
-	onMount(async function () {
-		isLoading = true;
-		await fetchProjects();
-		isLoading = false;
-	});
+	import { createQuery } from '@tanstack/svelte-query';
+	import { reactiveQueryArgs } from '$lib/utils.svelte';
 
 	const sidebar = useSidebar();
+
+
+	const projectsStore = createQuery(
+		reactiveQueryArgs(() => ({
+			queryKey: ['projects'],
+			queryFn: async () => await axios.get<ApiResponse<Project[]>>('/projects')
+		}))
+	);
+
+	let { isLoading, data: responseData } = $derived($projectsStore);
+
+	let sideBarProjects = $derived.by(() => {
+			return (responseData?.data.data || []).map((project) => ({
+				name: project.name,
+				url: `/app/projects/${project.id}`
+			}));
+		}
+	);
+
 </script>
 
 <Sidebar.Group class="group-data-[collapsible=icon]:hidden">
@@ -47,13 +39,14 @@
 
 	{#if isLoading}
 		<div class="flex flex-col gap-2">
+			<!--	eslint-disable-next-line @typescript-eslint/no-unused-vars		-->
 			{#each Array(5) as _, index (index)}
 				<Skeleton class="h-[32px] w-full" />
 			{/each}
 		</div>
 	{:else}
 		<Sidebar.Menu>
-			{#each projects as item (item.name)}
+			{#each sideBarProjects as item (item.name)}
 				<Sidebar.MenuItem>
 					<Sidebar.MenuButton>
 						{#snippet child({ props })}

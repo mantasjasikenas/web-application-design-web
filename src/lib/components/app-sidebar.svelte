@@ -1,5 +1,5 @@
 <script lang="ts" module>
-	import { Home } from 'lucide-svelte';
+	import { Home, SquareSlash } from 'lucide-svelte';
 	import { auth } from '$lib/auth.svelte';
 
 	const data = {
@@ -7,8 +7,12 @@
 			{
 				title: 'Home',
 				url: '/app',
-				icon: Home,
-				isActive: true
+				icon: Home
+			},
+			{
+				title: 'Projects',
+				url: '/app/projects',
+				icon: SquareSlash
 			}
 		]
 	};
@@ -22,7 +26,6 @@
 	import Command from 'lucide-svelte/icons/command';
 	import type { ComponentProps } from 'svelte';
 	import ToggleTheme from './toggle-theme.svelte';
-	import Logout from './logout-button.svelte';
 
 	let { ref = $bindable(null), ...restProps }: ComponentProps<typeof Sidebar.Root> = $props();
 </script>
@@ -47,7 +50,6 @@
 					{/snippet}
 				</Sidebar.MenuButton>
 				<ToggleTheme />
-				<Logout />
 			</Sidebar.MenuItem>
 		</Sidebar.Menu>
 	</Sidebar.Header>

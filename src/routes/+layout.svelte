@@ -19,7 +19,7 @@
 	});
 
 	onMount(async () => {
-		await auth.initiliaze();
+		await auth.initialize();
 	});
 </script>
 
