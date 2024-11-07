@@ -9,6 +9,8 @@
 	import SectionForm from './(components)/section-form.svelte';
 	import { toast } from 'svelte-sonner';
 	import ConfirmDialog from '$lib/components/confirm-dialog.svelte';
+	import SectionColumn from './(components)/section-column.svelte';
+	import TaskForm from './(components)/task-form.svelte';
 
 	const queryClient = useQueryClient();
 	let { data }: { data: PageData } = $props();
@@ -17,7 +19,13 @@
 		reactiveQueryArgs(() => ({
 			queryKey: ['sections', data.params.id],
 			queryFn: async () =>
-				await axios.get<ApiResponse<Section[]>>(`/projects/${data.params.id}/sections`)
+				await axios.get<ApiResponse<Section[]>>(`/projects/${data.params.id}/sections`,
+					{
+						params: {
+							withTasks: true
+						}
+					}
+				)
 		}))
 	);
 
@@ -42,7 +50,8 @@
 	let sections = $derived(responseData?.data.data || []);
 
 	let isDialogOpen = $state(false);
-	let isConfirmDialogOpen = $state(false);
+	let isDeleteConfirmDialogOpen = $state(false);
+	let isAddTaskDialogOpen = $state(false);
 	let selectedSection = $state<Section | undefined>(undefined);
 
 	const onEdit = (section: Section) => {
@@ -52,57 +61,87 @@
 
 	const onDelete = (section: Section) => {
 		selectedSection = section;
-		isConfirmDialogOpen = true;
+		isDeleteConfirmDialogOpen = true;
+	};
+
+	const onAdd = (section: Section) => {
+		selectedSection = section;
+		isAddTaskDialogOpen = true;
 	};
 </script>
 
 
-<PageTitle title="Sections" subtitle="A list of all sections in the project">
-	<SectionForm
-		projectId={data.params.id}
-		isOpen={isDialogOpen}
-		section={selectedSection}
-		onOpenChange={(value) => {
+<div class="w-full">
+	<PageTitle title="Project ID{data.params.id}" subtitle="A list of all sections in the project">
+		<SectionForm
+			projectId={data.params.id}
+			isOpen={isDialogOpen}
+			section={selectedSection}
+			onOpenChange={(value) => {
                 isDialogOpen = value;
 
                 if (!value) {
                   	selectedSection = undefined;
                 }
               }}
-	/>
-</PageTitle>
+		/>
+	</PageTitle>
 
-<ConfirmDialog isOpen={isConfirmDialogOpen} onOpenChange={(value) => {
-								isConfirmDialogOpen = value;
+	<ConfirmDialog isOpen={isDeleteConfirmDialogOpen} onOpenChange={(value) => {
+								isDeleteConfirmDialogOpen = value;
 
 								if (!value) {
 									selectedSection = undefined;
 								}
 }}
-							 onConfirm={() => {
+								 onConfirm={() => {
 								if (selectedSection) {
 											$deleteSectionMutation.mutate(selectedSection.id);
 											selectedSection = undefined;
 								}
 							}}
-							 title="Delete Section"
-							 message={`Are you sure you want to delete section ${selectedSection?.name}?`}
-/>
+								 title="Delete Section"
+								 message={`Are you sure you want to delete section ${selectedSection?.name}?`}
+	/>
 
-{#if isLoading || isRefetching}
-	<LoadingIndicator class="size-6" />
-{/if}
+	{#if selectedSection?.id}
+		<TaskForm
+			projectId={data.params.id}
+			sectionId={selectedSection.id}
+			isOpen={isAddTaskDialogOpen}
+			onOpenChange={(value) => {
+		isAddTaskDialogOpen = value;
 
-{#if error}
-	<p>{error.message}</p>
-{/if}
+		if (!value) {
+			selectedSection = undefined;
+		}
+	}}
+		/>
+	{/if}
 
-<p>Project ID: {data.params.id}</p>
+	{#if isLoading || isRefetching}
+		<LoadingIndicator class="size-6" />
+	{/if}
 
-{#if sections.length}
-	{#each sections as section (section.id)}
-		<h2>{section.name}</h2>
-	{/each}
-{:else}
-	<p>No sections found.</p>
-{/if}
+	{#if error}
+		<p>{error.message}</p>
+	{/if}
+
+	{#if sections.length}
+
+		<div class="pr-2 pb-2"
+		>
+			<div class="flex flex-row space-x-4 overflow-x-auto overflow-y-hidden">
+				{#each sections as section (section.id)}
+					<SectionColumn section={section} tasks={section.tasks || []}
+												 onAddTask={() => {
+													 onAdd(section);
+						}}
+					/>
+				{/each}
+			</div>
+		</div>
+	{:else}
+		<p>No sections found.</p>
+	{/if}
+</div>

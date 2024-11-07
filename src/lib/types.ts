@@ -28,4 +28,21 @@ export type Section = {
 	name: string;
 	createdBy: string;
 	createdAt: string;
+	tasks?: Task[];
 };
+
+export type Task = {
+	id: number;
+	sectionId: number;
+	name: string;
+	description: string;
+	priority: Priority;
+	completed: boolean;
+	dueDate: string;
+	createdBy: string;
+	createdAt: string;
+};
+
+export const Priorities = ['Low', 'Medium', 'High', 'Vital'] as const;
+
+export type Priority = (typeof Priorities)[number];
