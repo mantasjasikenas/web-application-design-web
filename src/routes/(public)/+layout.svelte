@@ -1,16 +1,18 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import { auth } from '$lib/auth.svelte';
+	import LoadingIndicator from '$lib/components/loading-indicator.svelte';
+	import { fade } from 'svelte/transition';
 
 	let { children } = $props();
 </script>
 
 {#if auth.isLoading}
-	<div class="flex h-screen items-center justify-center">Loading...</div>
+	<LoadingIndicator />
 {:else if auth.decodedToken}
 	{goto('/app')}
 {:else}
-	<div class="flex h-screen items-center justify-center">
+	<div class="w-svh flex h-svh items-center justify-center" in:fade>
 		{@render children?.()}
 	</div>
 {/if}

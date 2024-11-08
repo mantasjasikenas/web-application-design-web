@@ -15,6 +15,7 @@
 	import * as Table from '$lib/components/ui/table/index.js';
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js';
 	import PageRoot from '$lib/components/page-root.svelte';
+	import More from '$lib/components/more.svelte';
 
 	const columns = ['Id', 'Name', 'Description', 'Created At'];
 
@@ -125,7 +126,7 @@
 											variant="ghost"
 											class="flex h-8 w-8 p-0 data-[state=open]:bg-muted"
 										>
-											<Ellipsis class="size-4" />
+											<More size="16" />
 											<span class="sr-only">Open Menu</span>
 										</Button>
 									{/snippet}
