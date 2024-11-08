@@ -11,6 +11,7 @@
 	import ConfirmDialog from '$lib/components/confirm-dialog.svelte';
 	import SectionColumn from './(components)/section-column.svelte';
 	import TaskForm from './(components)/task-form.svelte';
+	import { fade } from 'svelte/transition';
 
 	const queryClient = useQueryClient();
 	let { data }: { data: PageData } = $props();
@@ -128,9 +129,7 @@
 	{/if}
 
 	{#if sections.length}
-
-		<div class="pr-2 pb-2"
-		>
+		<div class="pr-2 pb-2" in:fade>
 			<div class="flex flex-row space-x-4 overflow-x-auto overflow-y-hidden">
 				{#each sections as section (section.id)}
 					<SectionColumn section={section} tasks={section.tasks || []}
@@ -141,7 +140,7 @@
 				{/each}
 			</div>
 		</div>
-	{:else}
+	{:else if !isLoading}
 		<p>No sections found.</p>
 	{/if}
 </div>
