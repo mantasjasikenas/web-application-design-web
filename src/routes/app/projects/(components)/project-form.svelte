@@ -26,7 +26,8 @@
 
 	let { project, isOpen, onOpenChange }: ProjectFormProps = $props();
 
-	const form = $derived(superForm(defaults(project, zod(projectSchema)), {
+	const form = $derived(
+		superForm(defaults(project, zod(projectSchema)), {
 			SPA: true,
 			validators: zod(projectSchema),
 			onUpdate({ form }) {
@@ -36,8 +37,8 @@
 					toast.error('Form is invalid');
 				}
 			}
-		}
-	));
+		})
+	);
 
 	const { form: formData, enhance } = $derived(form);
 
@@ -68,7 +69,10 @@
 				throw new Error('Project not found');
 			}
 
-			const response = await axios.put<ApiResponse>(`/projects/${project.id}`, $formData);
+			const response = await axios.patch<ApiResponse>(`/projects/${project.id}`, {
+				description: $formData.description,
+				name: $formData.name
+			});
 
 			if (!response.data.success) {
 				throw new Error(response.data.message);
@@ -94,8 +98,7 @@
 	};
 </script>
 
-
-<Dialog.Root open={isOpen} onOpenChange={onOpenChange}>
+<Dialog.Root open={isOpen} {onOpenChange}>
 	<Dialog.Trigger>
 		<Button size="sm">Add</Button>
 	</Dialog.Trigger>
@@ -125,9 +128,7 @@
 					<Form.FieldErrors />
 				</Form.Field>
 
-				<Form.Button
-					disabled={$createProjectMutation.isPending}
-				>
+				<Form.Button disabled={$createProjectMutation.isPending}>
 					{#if $createProjectMutation.isPending}
 						<Loader2 class="mr-2 h-4 w-4 animate-spin" />
 					{/if}

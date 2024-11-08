@@ -89,6 +89,7 @@
 		}}
 		onConfirm={() => {
 			if (selectedProject) {
+				isConfirmDialogOpen = false;
 				$deleteProjectMutation.mutate(selectedProject.id);
 				selectedProject = undefined;
 			}

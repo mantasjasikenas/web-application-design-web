@@ -6,20 +6,45 @@
 	import { zod } from 'sveltekit-superforms/adapters';
 	import { signupSchema } from './schema';
 	import { toast } from 'svelte-sonner';
+	import { createMutation } from '@tanstack/svelte-query';
+	import { auth } from '$lib/auth.svelte';
+	import { goto } from '$app/navigation';
+	import { Loader2 } from 'lucide-svelte';
 
 	const form = superForm(defaults(zod(signupSchema)), {
 		SPA: true,
 		validators: zod(signupSchema),
 		onUpdate({ form }) {
 			if (form.valid) {
-				toast.success('Form is valid');
+				$signupMutation.mutate(form.data);
 			} else {
 				toast.error('Form is invalid');
 			}
 		}
 	});
 
-	const { form: formData, enhance } = form;
+	const { form: formData, enhance } = $derived(form);
+
+	const signupMutation = createMutation({
+		mutationFn: async (data: { username: string; email: string; password: string }) => {
+			const response = await auth.register({
+				username: data.username,
+				email: data.email,
+				password: data.password
+			});
+
+			if (!response.success) {
+				throw new Error(response.message);
+			}
+		},
+		onSuccess: () => {
+			toast.success('Sign up successful');
+			goto('/login');
+		},
+		onError: (error) => {
+			toast.error(`Sign up failed. ${error.message}`);
+		}
+	});
 </script>
 
 <Card.Root class="mx-auto w-[22rem] max-w-sm">
@@ -35,6 +60,16 @@
 						{#snippet children({ props })}
 							<Form.Label class="data-[fs-error]:text-primary">Email</Form.Label>
 							<Input {...props} bind:value={$formData.email} />
+						{/snippet}
+					</Form.Control>
+					<Form.FieldErrors />
+				</Form.Field>
+
+				<Form.Field {form} name="username">
+					<Form.Control>
+						{#snippet children({ props })}
+							<Form.Label class="data-[fs-error]:text-primary">Username</Form.Label>
+							<Input {...props} bind:value={$formData.username} />
 						{/snippet}
 					</Form.Control>
 					<Form.FieldErrors />
@@ -60,7 +95,13 @@
 					<Form.FieldErrors />
 				</Form.Field>
 
-				<Form.Button>Register</Form.Button>
+				<Form.Button disabled={$signupMutation.isPending}>
+					{#if $signupMutation.isPending}
+						<Loader2 class="mr-2 h-4 w-4 animate-spin" />
+					{/if}
+
+					Register</Form.Button
+				>
 			</div>
 		</form>
 

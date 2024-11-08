@@ -8,38 +8,39 @@
 	import { toast } from 'svelte-sonner';
 	import { auth } from '$lib/auth.svelte';
 	import { goto } from '$app/navigation';
+	import { createMutation } from '@tanstack/svelte-query';
+	import { Loader2 } from 'lucide-svelte';
 
 	const form = superForm(defaults(zod(loginSchema)), {
 		SPA: true,
 		validators: zod(loginSchema),
 		onUpdate({ form }) {
 			if (form.valid) {
-				login(form.data);
+				$loginMutation.mutate(form.data);
 			} else {
 				toast.error('Form is invalid');
 			}
 		}
 	});
 
-	const { form: formData, enhance } = form;
+	const { form: formData, enhance } = $derived(form);
 
-	const login = async (data: { username: string; password: string }) => {
-		const loginResponse = await auth.login(data);
+	const loginMutation = createMutation({
+		mutationFn: async (data: { username: string; password: string }) => {
+			const response = await auth.login(data);
 
-		if (loginResponse.success) {
+			if (!response.success) {
+				throw new Error(response.message);
+			}
+		},
+		onSuccess: () => {
 			toast.success('Login successful');
 			goto('/app');
-		} else {
-			const errors = loginResponse.errors;
-
-			toast.error(loginResponse.message);
-
-			if (errors) {
-				toast.error('Login failed');
-				toast.error(errors.join(', '));
-			}
+		},
+		onError: () => {
+			toast.error('Login failed');
 		}
-	};
+	});
 </script>
 
 <Card.Root class="mx-auto w-[22rem] max-w-sm">
@@ -70,7 +71,13 @@
 					<Form.FieldErrors />
 				</Form.Field>
 
-				<Form.Button>Login</Form.Button>
+				<Form.Button disabled={$loginMutation.isPending}>
+					{#if $loginMutation.isPending}
+						<Loader2 class="mr-2 h-4 w-4 animate-spin" />
+					{/if}
+
+					Login</Form.Button
+				>
 			</div>
 		</form>
 
