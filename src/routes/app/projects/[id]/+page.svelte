@@ -12,6 +12,7 @@
 	import SectionColumn from './(components)/section-column.svelte';
 	import TaskForm from './(components)/task-form.svelte';
 	import { fade } from 'svelte/transition';
+	import PageRoot from '$lib/components/page-root.svelte';
 
 	const queryClient = useQueryClient();
 	let { data }: { data: PageData } = $props();
@@ -71,22 +72,7 @@
 	};
 </script>
 
-<div class="flex h-full w-full flex-col">
-	<PageTitle title="Project ID{data.params.id}" subtitle="A list of all sections in the project">
-		<SectionForm
-			projectId={data.params.id}
-			isOpen={isDialogOpen}
-			section={selectedSection}
-			onOpenChange={(value) => {
-				isDialogOpen = value;
-
-				if (!value) {
-					selectedSection = undefined;
-				}
-			}}
-		/>
-	</PageTitle>
-
+{#snippet confirmDeleteDialog()}
 	<ConfirmDialog
 		isOpen={isDeleteConfirmDialogOpen}
 		onOpenChange={(value) => {
@@ -105,20 +91,64 @@
 		title="Delete Section"
 		message={`Are you sure you want to delete section ${selectedSection?.name}?`}
 	/>
+{/snippet}
+
+{#snippet sectionsContainer()}
+	<div
+		class="flex h-full flex-nowrap space-x-4 overflow-x-auto overflow-y-hidden rounded-lg p-4"
+		in:fade
+	>
+		{#each sections as section (section.id)}
+			<SectionColumn
+				{section}
+				tasks={section.tasks || []}
+				onAddTask={() => {
+					onAdd(section);
+				}}
+			/>
+		{/each}
+	</div>
+{/snippet}
+
+{#snippet taskForm()}
+	<TaskForm
+		projectId={data.params.id}
+		sectionId={selectedSection?.id || 0}
+		isOpen={isAddTaskDialogOpen}
+		onOpenChange={(value) => {
+			isAddTaskDialogOpen = value;
+
+			if (!value) {
+				selectedSection = undefined;
+			}
+		}}
+	/>
+{/snippet}
+
+{#snippet sectionForm()}
+	<SectionForm
+		projectId={data.params.id}
+		isOpen={isDialogOpen}
+		section={selectedSection}
+		onOpenChange={(value) => {
+			isDialogOpen = value;
+
+			if (!value) {
+				selectedSection = undefined;
+			}
+		}}
+	/>
+{/snippet}
+
+<PageRoot
+	title="Project ID{data.params.id}"
+	subtitle="A list of all sections in the project"
+	headerChildren={sectionForm}
+>
+	{@render confirmDeleteDialog()}
 
 	{#if selectedSection?.id}
-		<TaskForm
-			projectId={data.params.id}
-			sectionId={selectedSection.id}
-			isOpen={isAddTaskDialogOpen}
-			onOpenChange={(value) => {
-				isAddTaskDialogOpen = value;
-
-				if (!value) {
-					selectedSection = undefined;
-				}
-			}}
-		/>
+		{@render taskForm()}
 	{/if}
 
 	{#if isLoading || isRefetching}
@@ -130,21 +160,8 @@
 	{/if}
 
 	{#if sections.length}
-		<div
-			class="flex h-full flex-nowrap space-x-4 overflow-x-auto overflow-y-hidden rounded-lg p-4"
-			in:fade
-		>
-			{#each sections as section (section.id)}
-				<SectionColumn
-					{section}
-					tasks={section.tasks || []}
-					onAddTask={() => {
-						onAdd(section);
-					}}
-				/>
-			{/each}
-		</div>
+		{@render sectionsContainer()}
 	{:else if !isLoading}
 		<p>No sections found.</p>
 	{/if}
-</div>
+</PageRoot>

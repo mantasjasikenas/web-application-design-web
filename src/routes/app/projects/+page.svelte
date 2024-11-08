@@ -14,6 +14,7 @@
 	import ConfirmDialog from '$lib/components/confirm-dialog.svelte';
 	import * as Table from '$lib/components/ui/table/index.js';
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js';
+	import PageRoot from '$lib/components/page-root.svelte';
 
 	const columns = ['Id', 'Name', 'Description', 'Created At'];
 
@@ -62,21 +63,21 @@
 	};
 </script>
 
-<div class="flex h-full w-full flex-col">
-	<PageTitle title="Projects" subtitle="A list of your projects">
-		<ProjectForm
-			isOpen={isDialogOpen}
-			project={selectedProject}
-			onOpenChange={(value) => {
-				isDialogOpen = value;
+{#snippet projectForm()}
+	<ProjectForm
+		isOpen={isDialogOpen}
+		project={selectedProject}
+		onOpenChange={(value) => {
+			isDialogOpen = value;
 
-				if (!value) {
-					selectedProject = undefined;
-				}
-			}}
-		/>
-	</PageTitle>
+			if (!value) {
+				selectedProject = undefined;
+			}
+		}}
+	/>
+{/snippet}
 
+{#snippet confirmDeleteDialog()}
 	<ConfirmDialog
 		isOpen={isConfirmDialogOpen}
 		onOpenChange={(value) => {
@@ -95,67 +96,75 @@
 		title="Delete Project"
 		message={`Are you sure you want to delete project ${selectedProject?.name}?`}
 	/>
+{/snippet}
+
+{#snippet projectsTable()}
+	<Table.Root>
+		<Table.Header>
+			<Table.Row>
+				{#each columns as column}
+					<Table.Head>{column}</Table.Head>
+				{/each}
+			</Table.Row>
+		</Table.Header>
+		<Table.Body>
+			{#if projects.length}
+				{#each projects as project, i (i)}
+					<Table.Row>
+						<Table.Cell class="font-medium">{project.id}</Table.Cell>
+						<Table.Cell>{project.name}</Table.Cell>
+						<Table.Cell>{project.description}</Table.Cell>
+						<Table.Cell>{formatDate(project.createdAt)}</Table.Cell>
+						<Table.Cell>
+							<DropdownMenu.Root>
+								<DropdownMenu.Trigger>
+									{#snippet child({ props })}
+										<Button
+											{...props}
+											variant="ghost"
+											class="flex h-8 w-8 p-0 data-[state=open]:bg-muted"
+										>
+											<Ellipsis class="size-4" />
+											<span class="sr-only">Open Menu</span>
+										</Button>
+									{/snippet}
+								</DropdownMenu.Trigger>
+								<DropdownMenu.Content class="w-[160px]" align="end">
+									<DropdownMenu.Item
+										onclick={() => {
+											onEdit(project);
+										}}
+										>Edit
+									</DropdownMenu.Item>
+									<DropdownMenu.Separator />
+									<DropdownMenu.Item
+										onclick={() => {
+											onDelete(project);
+										}}
+										>Delete
+									</DropdownMenu.Item>
+								</DropdownMenu.Content>
+							</DropdownMenu.Root>
+						</Table.Cell>
+					</Table.Row>
+				{/each}
+			{:else}
+				<Table.Row>
+					<Table.Cell colspan={columns.length} class="h-24 text-center">No results.</Table.Cell>
+				</Table.Row>
+			{/if}
+		</Table.Body>
+	</Table.Root>
+{/snippet}
+
+<PageRoot title="Projects" subtitle="A list of your projects" headerChildren={projectForm}>
+	{@render confirmDeleteDialog()}
 
 	{#if isLoading}
 		<LoadingIndicator />
 	{:else if error}
 		<ErrorIndicator message={error.message} />
 	{:else}
-		<Table.Root>
-			<Table.Header>
-				<Table.Row>
-					{#each columns as column}
-						<Table.Head>{column}</Table.Head>
-					{/each}
-				</Table.Row>
-			</Table.Header>
-			<Table.Body>
-				{#if projects.length}
-					{#each projects as project, i (i)}
-						<Table.Row>
-							<Table.Cell class="font-medium">{project.id}</Table.Cell>
-							<Table.Cell>{project.name}</Table.Cell>
-							<Table.Cell>{project.description}</Table.Cell>
-							<Table.Cell>{formatDate(project.createdAt)}</Table.Cell>
-							<Table.Cell>
-								<DropdownMenu.Root>
-									<DropdownMenu.Trigger>
-										{#snippet child({ props })}
-											<Button
-												{...props}
-												variant="ghost"
-												class="flex h-8 w-8 p-0 data-[state=open]:bg-muted"
-											>
-												<Ellipsis class="size-4" />
-												<span class="sr-only">Open Menu</span>
-											</Button>
-										{/snippet}
-									</DropdownMenu.Trigger>
-									<DropdownMenu.Content class="w-[160px]" align="end">
-										<DropdownMenu.Item
-											onclick={() => {
-												onEdit(project);
-											}}
-											>Edit
-										</DropdownMenu.Item>
-										<DropdownMenu.Separator />
-										<DropdownMenu.Item
-											onclick={() => {
-												onDelete(project);
-											}}
-											>Delete
-										</DropdownMenu.Item>
-									</DropdownMenu.Content>
-								</DropdownMenu.Root>
-							</Table.Cell>
-						</Table.Row>
-					{/each}
-				{:else}
-					<Table.Row>
-						<Table.Cell colspan={columns.length} class="h-24 text-center">No results.</Table.Cell>
-					</Table.Row>
-				{/if}
-			</Table.Body>
-		</Table.Root>
+		{@render projectsTable()}
 	{/if}
-</div>
+</PageRoot>

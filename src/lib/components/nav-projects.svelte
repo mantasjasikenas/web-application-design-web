@@ -14,7 +14,6 @@
 
 	const sidebar = useSidebar();
 
-
 	const projectsStore = createQuery(
 		reactiveQueryArgs(() => ({
 			queryKey: ['projects'],
@@ -25,13 +24,11 @@
 	let { isLoading, data: responseData } = $derived($projectsStore);
 
 	let sideBarProjects = $derived.by(() => {
-			return (responseData?.data.data || []).map((project) => ({
-				name: project.name,
-				url: `/app/projects/${project.id}`
-			}));
-		}
-	);
-
+		return (responseData?.data.data || []).map((project) => ({
+			name: project.name,
+			url: `/app/projects/${project.id}`
+		}));
+	});
 </script>
 
 <Sidebar.Group class="group-data-[collapsible=icon]:hidden">
