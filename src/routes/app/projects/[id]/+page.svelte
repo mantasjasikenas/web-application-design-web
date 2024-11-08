@@ -20,19 +20,19 @@
 		reactiveQueryArgs(() => ({
 			queryKey: ['sections', data.params.id],
 			queryFn: async () =>
-				await axios.get<ApiResponse<Section[]>>(`/projects/${data.params.id}/sections`,
-					{
-						params: {
-							withTasks: true
-						}
+				await axios.get<ApiResponse<Section[]>>(`/projects/${data.params.id}/sections`, {
+					params: {
+						withTasks: true
 					}
-				)
+				})
 		}))
 	);
 
 	const deleteSectionMutation = createMutation({
 		mutationFn: async (id: number) => {
-			const response = await axios.delete<ApiResponse>(`/projects/${data.params.id}/sections/${id}`);
+			const response = await axios.delete<ApiResponse>(
+				`/projects/${data.params.id}/sections/${id}`
+			);
 
 			if (response.status !== 204) {
 				throw new Error(response.data.message);
@@ -71,38 +71,39 @@
 	};
 </script>
 
-
-<div class="w-full h-full">
+<div class="flex h-full w-full flex-col">
 	<PageTitle title="Project ID{data.params.id}" subtitle="A list of all sections in the project">
 		<SectionForm
 			projectId={data.params.id}
 			isOpen={isDialogOpen}
 			section={selectedSection}
 			onOpenChange={(value) => {
-                isDialogOpen = value;
+				isDialogOpen = value;
 
-                if (!value) {
-                  	selectedSection = undefined;
-                }
-              }}
+				if (!value) {
+					selectedSection = undefined;
+				}
+			}}
 		/>
 	</PageTitle>
 
-	<ConfirmDialog isOpen={isDeleteConfirmDialogOpen} onOpenChange={(value) => {
-								isDeleteConfirmDialogOpen = value;
+	<ConfirmDialog
+		isOpen={isDeleteConfirmDialogOpen}
+		onOpenChange={(value) => {
+			isDeleteConfirmDialogOpen = value;
 
-								if (!value) {
-									selectedSection = undefined;
-								}
-}}
-								 onConfirm={() => {
-								if (selectedSection) {
-											$deleteSectionMutation.mutate(selectedSection.id);
-											selectedSection = undefined;
-								}
-							}}
-								 title="Delete Section"
-								 message={`Are you sure you want to delete section ${selectedSection?.name}?`}
+			if (!value) {
+				selectedSection = undefined;
+			}
+		}}
+		onConfirm={() => {
+			if (selectedSection) {
+				$deleteSectionMutation.mutate(selectedSection.id);
+				selectedSection = undefined;
+			}
+		}}
+		title="Delete Section"
+		message={`Are you sure you want to delete section ${selectedSection?.name}?`}
 	/>
 
 	{#if selectedSection?.id}
@@ -111,12 +112,12 @@
 			sectionId={selectedSection.id}
 			isOpen={isAddTaskDialogOpen}
 			onOpenChange={(value) => {
-		isAddTaskDialogOpen = value;
+				isAddTaskDialogOpen = value;
 
-		if (!value) {
-			selectedSection = undefined;
-		}
-	}}
+				if (!value) {
+					selectedSection = undefined;
+				}
+			}}
 		/>
 	{/if}
 
@@ -129,12 +130,17 @@
 	{/if}
 
 	{#if sections.length}
-		<div class="flex flex-nowrap space-x-4 overflow-x-auto overflow-y-hidden p-4 rounded-lg h-full" in:fade>
+		<div
+			class="flex h-full flex-nowrap space-x-4 overflow-x-auto overflow-y-hidden rounded-lg p-4"
+			in:fade
+		>
 			{#each sections as section (section.id)}
-				<SectionColumn section={section} tasks={section.tasks || []}
-											 onAddTask={() => {
-													 onAdd(section);
-						}}
+				<SectionColumn
+					{section}
+					tasks={section.tasks || []}
+					onAddTask={() => {
+						onAdd(section);
+					}}
 				/>
 			{/each}
 		</div>

@@ -18,10 +18,9 @@
 		</header>
 
 		<div class="flex flex-1 gap-4 p-2 pt-0">
-			<div class="h-full w-full rounded-xl p-6 border">
+			<div class="h-[calc(100vh-6rem)] min-h-0 w-full overflow-hidden rounded-xl border p-6">
 				{@render children()}
 			</div>
 		</div>
-
 	</Sidebar.Inset>
 </Sidebar.Provider>

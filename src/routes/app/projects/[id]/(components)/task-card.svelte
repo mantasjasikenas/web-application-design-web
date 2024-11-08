@@ -15,7 +15,7 @@
 </script>
 
 
-<Card.Root class="w-[258px] min-h-[68px] hover:border-solid hover:border-gray-400">
+<Card.Root class="w-[258px] min-h-[68px] hover:border-solid hover:border-gray-400 shrink-0">
 	<div class="flex flex-row p-4 gap-2">
 		<div class="flex items-center space-x-2 justify-start h-full">
 			<Checkbox checked={task.completed}  controlledChecked={true} />
