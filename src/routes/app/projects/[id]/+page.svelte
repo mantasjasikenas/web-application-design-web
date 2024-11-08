@@ -72,7 +72,7 @@
 </script>
 
 
-<div class="w-full">
+<div class="w-full h-full">
 	<PageTitle title="Project ID{data.params.id}" subtitle="A list of all sections in the project">
 		<SectionForm
 			projectId={data.params.id}
@@ -129,16 +129,14 @@
 	{/if}
 
 	{#if sections.length}
-		<div class="pr-2 pb-2" in:fade>
-			<div class="flex flex-row space-x-4 overflow-x-auto overflow-y-hidden">
-				{#each sections as section (section.id)}
-					<SectionColumn section={section} tasks={section.tasks || []}
-												 onAddTask={() => {
+		<div class="flex flex-nowrap space-x-4 overflow-x-auto overflow-y-hidden p-4 rounded-lg h-full" in:fade>
+			{#each sections as section (section.id)}
+				<SectionColumn section={section} tasks={section.tasks || []}
+											 onAddTask={() => {
 													 onAdd(section);
 						}}
-					/>
-				{/each}
-			</div>
+				/>
+			{/each}
 		</div>
 	{:else if !isLoading}
 		<p>No sections found.</p>

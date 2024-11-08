@@ -17,8 +17,8 @@
 </script>
 
 
-<div class="pb-6 pr-6 w-[282px] h-full">
-	<div class="flex flex-col gap-4">
+<div class="pb-6 pr-6 w-[282px] shrink-0">
+	<div class="flex flex-col gap-4 ">
 		<div class="flex items-center justify-between">
 			<h2 class="text-lg font-bold">{section.name}</h2>
 
