@@ -23,7 +23,7 @@
 	const { section, tasks, onSectionAction, onTaskAction }: SectionColumnProps = $props();
 </script>
 
-<div class="h-full w-[282px] shrink-0 pr-6">
+<div class="h-full w-[282px] shrink-0 pr-4">
 	<div class="flex h-full flex-col gap-4">
 		<div class="flex items-center gap-4">
 			<h2 class="text-lg font-bold">{section.name}</h2>

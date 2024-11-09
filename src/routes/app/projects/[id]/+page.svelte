@@ -171,7 +171,7 @@
 
 {#snippet sectionsContainer()}
 	<div
-		class="flex h-full flex-nowrap space-x-4 overflow-x-auto overflow-y-hidden rounded-lg p-4"
+		class="flex h-full flex-nowrap space-x-6 overflow-x-auto overflow-y-hidden rounded-lg p-4"
 		in:fade
 	>
 		{#each sections as section (section.id)}
