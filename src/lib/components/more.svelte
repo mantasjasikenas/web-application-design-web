@@ -9,6 +9,7 @@
 	const { class: className, size }: MoreProps = $props();
 </script>
 
+<!--TODO fix icon sizing and position-->
 <svg width={size} height={size} class={className} viewBox="0 0 16 16">
 	<g></g>
 	<path

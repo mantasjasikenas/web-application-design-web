@@ -25,8 +25,10 @@
 
 	let { projectId, section, isOpen, onOpenChange }: SectionFormProps = $props();
 
-	const form = $derived(superForm(defaults(section, zod(sectionSchema)), {
+	const form = $derived(
+		superForm(defaults(section, zod(sectionSchema)), {
 			SPA: true,
+			dataType: 'json',
 			validators: zod(sectionSchema),
 			onUpdate({ form }) {
 				if (form.valid) {
@@ -35,8 +37,8 @@
 					toast.error('Form is invalid');
 				}
 			}
-		}
-	));
+		})
+	);
 
 	const { form: formData, enhance } = $derived(form);
 
@@ -67,7 +69,12 @@
 				throw new Error('Section not found');
 			}
 
-			const response = await axios.put<ApiResponse>(`/projects/${section.id}/sections`, $formData);
+			const response = await axios.patch<ApiResponse>(
+				`/projects/${projectId}/sections/${section.id}`,
+				{
+					name: $formData.name
+				}
+			);
 
 			if (!response.data.success) {
 				throw new Error(response.data.message);
@@ -93,10 +100,9 @@
 	};
 </script>
 
-
-<Dialog.Root open={isOpen} onOpenChange={onOpenChange}>
+<Dialog.Root open={isOpen} {onOpenChange}>
 	<Dialog.Trigger>
-		<Button size="sm">Add</Button>
+		<Button size="sm">Add section</Button>
 	</Dialog.Trigger>
 	<Dialog.Content class="sm:max-w-md">
 		<Dialog.Header>
@@ -114,9 +120,7 @@
 					<Form.FieldErrors />
 				</Form.Field>
 
-				<Form.Button
-					disabled={$createSectionMutation.isPending}
-				>
+				<Form.Button disabled={$createSectionMutation.isPending}>
 					{#if $createSectionMutation.isPending}
 						<Loader2 class="mr-2 h-4 w-4 animate-spin" />
 					{/if}
