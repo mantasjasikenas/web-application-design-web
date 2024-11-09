@@ -37,7 +37,7 @@
 			</div>
 		</div>
 
-		<div class="flex overflow-auto">
+		<div class="flex overflow-y-auto overflow-x-hidden">
 			<div class="flex flex-col gap-4">
 				{#each tasks as task (task.id)}
 					<TaskCard onAction={(action) => onTaskAction(action, task)} {task} />

@@ -3,6 +3,7 @@
 	import { Separator } from '$lib/components/ui/separator/index.js';
 	import type { Snippet } from 'svelte';
 	import * as Sidebar from '$lib/components/ui/sidebar/index.js';
+	import SiteFooter from '$lib/components/site-footer.svelte';
 
 	let { children }: { children: Snippet<[]> } = $props();
 </script>
@@ -18,9 +19,11 @@
 		</header>
 
 		<div class="flex flex-1 gap-4 p-2 pt-0">
-			<div class="h-[calc(100vh-6rem)] min-h-0 w-full overflow-hidden rounded-xl border p-6">
+			<div class="h-[calc(100vh-7.5rem)] min-h-0 w-full overflow-hidden rounded-xl border p-6">
 				{@render children()}
 			</div>
 		</div>
+
+		<SiteFooter />
 	</Sidebar.Inset>
 </Sidebar.Provider>

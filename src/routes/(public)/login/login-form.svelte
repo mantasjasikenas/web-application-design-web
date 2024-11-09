@@ -37,8 +37,8 @@
 			toast.success('Login successful');
 			goto('/app');
 		},
-		onError: () => {
-			toast.error('Login failed');
+		onError: (err) => {
+			toast.error('Login failed. ' + err.message);
 		}
 	});
 </script>

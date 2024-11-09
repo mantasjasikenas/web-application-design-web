@@ -6,7 +6,11 @@ import { goto } from '$app/navigation';
 const axiosInstance = axios.create({
 	baseURL: PUBLIC_BASE_API_URL,
 	validateStatus: (status) => status !== 401,
-	withCredentials: true
+	withCredentials: true,
+	headers: {
+		'Content-Type': 'application/json',
+		'Access-Control-Allow-Origin': '*'
+	}
 });
 
 axiosInstance.interceptors.request.use(
