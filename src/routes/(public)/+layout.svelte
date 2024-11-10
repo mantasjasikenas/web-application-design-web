@@ -5,13 +5,17 @@
 	import { fade } from 'svelte/transition';
 
 	let { children } = $props();
+
+	$effect(() => {
+		if (!auth.isLoading && auth.decodedToken) {
+			goto('/app');
+		}
+	});
 </script>
 
 {#if auth.isLoading}
 	<LoadingIndicator />
-{:else if auth.decodedToken}
-	{goto('/app')}
-{:else}
+{:else if !auth.decodedToken}
 	<div class="w-svh flex h-svh items-center justify-center" in:fade>
 		{@render children?.()}
 	</div>

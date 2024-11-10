@@ -23,7 +23,6 @@
 	import NavProjects from '$lib/components/nav-projects.svelte';
 	import NavUser from '$lib/components/nav-user.svelte';
 	import * as Sidebar from '$lib/components/ui/sidebar/index.js';
-	import Command from 'lucide-svelte/icons/command';
 	import type { ComponentProps } from 'svelte';
 	import ToggleTheme from './toggle-theme.svelte';
 
@@ -36,11 +35,11 @@
 			<Sidebar.MenuItem class="flex flex-row items-center justify-center gap-3">
 				<Sidebar.MenuButton size="lg">
 					{#snippet child({ props })}
-						<a href="##" {...props}>
+						<a href="/" {...props}>
 							<div
 								class="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground"
 							>
-								<Command class="size-4" />
+								<img src="tornado.svg" class="size-6 animate-pulse" alt="App Logo" />
 							</div>
 							<div class="grid flex-1 text-left text-sm leading-tight">
 								<span class="truncate font-semibold">Tasks Inc</span>

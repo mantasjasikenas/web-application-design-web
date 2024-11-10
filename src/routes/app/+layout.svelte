@@ -5,6 +5,12 @@
 	import LoadingIndicator from '$lib/components/loading-indicator.svelte';
 
 	let { children } = $props();
+
+	$effect(() => {
+		if (!auth.isLoading && !auth.decodedToken) {
+			goto('/login');
+		}
+	});
 </script>
 
 {#if auth.isLoading}
@@ -13,6 +19,4 @@
 	<SidebarPage>
 		{@render children?.()}
 	</SidebarPage>
-{:else}
-	{goto('/login')}
 {/if}

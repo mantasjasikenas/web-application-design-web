@@ -1,5 +1,6 @@
 <script lang="ts">
 	import * as Sidebar from '$lib/components/ui/sidebar/index.js';
+	import { fade } from 'svelte/transition';
 
 	let {
 		items
@@ -18,17 +19,19 @@
 	} = $props();
 </script>
 
-<Sidebar.Group>
-	{#each items as item (item.title)}
-		<Sidebar.MenuItem>
-			<Sidebar.MenuButton>
-				{#snippet child({ props })}
-					<a href={item.url} {...props}>
-						<item.icon />
-						<span>{item.title}</span>
-					</a>
-				{/snippet}
-			</Sidebar.MenuButton>
-		</Sidebar.MenuItem>
-	{/each}
-</Sidebar.Group>
+<div in:fade>
+	<Sidebar.Group>
+		{#each items as item (item.title)}
+			<Sidebar.MenuItem>
+				<Sidebar.MenuButton>
+					{#snippet child({ props })}
+						<a href={item.url} {...props}>
+							<item.icon />
+							<span>{item.title}</span>
+						</a>
+					{/snippet}
+				</Sidebar.MenuButton>
+			</Sidebar.MenuItem>
+		{/each}
+	</Sidebar.Group>
+</div>
