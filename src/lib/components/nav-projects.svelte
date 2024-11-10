@@ -1,13 +1,21 @@
 <script lang="ts">
 	import * as Sidebar from '$lib/components/ui/sidebar/index.js';
+	import * as Collapsible from '$lib/components/ui/collapsible/index.js';
 	import Folder from 'lucide-svelte/icons/folder';
 	import Skeleton from './ui/skeleton/skeleton.svelte';
 	import { createProjectQuery } from '$lib/queries/project-queries.svelte';
-	import { fade } from 'svelte/transition';
+	import { fade, slide } from 'svelte/transition';
+	import ChevronDown from 'lucide-svelte/icons/chevron-down';
+	import { page } from '$app/stores';
+	import { FolderOpen, FolderOpenDot } from 'lucide-svelte';
+	import ChevronUp from 'lucide-svelte/icons/chevron-up';
+	import ChevronRight from 'lucide-svelte/icons/chevron-right';
 
 	const projectsStore = createProjectQuery();
 
-	let { isLoading, data: responseData } = $derived($projectsStore);
+	let { data: responseData } = $derived($projectsStore);
+
+	const route = $derived($page.url);
 
 	let sideBarProjects = $derived.by(() => {
 		return responseData?.data.data?.map((project) => ({
@@ -19,31 +27,42 @@
 
 {#if sideBarProjects?.length}
 	<div in:fade>
-		<Sidebar.Group class="group-data-[collapsible=icon]:hidden">
-			<Sidebar.GroupLabel>Projects</Sidebar.GroupLabel>
+		<Collapsible.Root open class="group/collapsible">
+			<Sidebar.Group>
+				<Sidebar.GroupLabel>
+					{#snippet child({ props })}
+						<Collapsible.Trigger {...props}>
+							Projects
+							<ChevronRight
+								class="ml-auto transition-transform group-data-[state=open]/collapsible:rotate-90"
+							/>
+						</Collapsible.Trigger>
+					{/snippet}
+				</Sidebar.GroupLabel>
+				<Collapsible.Content>
+					<Sidebar.GroupContent>
+						<Sidebar.Menu>
+							{#each sideBarProjects as item, index (index)}
+								<Sidebar.MenuItem>
+									<Sidebar.MenuButton>
+										{#snippet child({ props })}
+											<a href={item.url} {...props}>
+												{#if route.pathname === item.url}
+													<FolderOpen />
+												{:else}
+													<Folder />
+												{/if}
 
-			{#if isLoading}
-				<div class="flex flex-col gap-2">
-					{#each Array(5) as _, index (index)}
-						<Skeleton class="h-[32px] w-full" />
-					{/each}
-				</div>
-			{:else}
-				<Sidebar.Menu>
-					{#each sideBarProjects as item, index (index)}
-						<Sidebar.MenuItem>
-							<Sidebar.MenuButton>
-								{#snippet child({ props })}
-									<a href={item.url} {...props}>
-										<Folder />
-										<span>{item.name}</span>
-									</a>
-								{/snippet}
-							</Sidebar.MenuButton>
-						</Sidebar.MenuItem>
-					{/each}
-				</Sidebar.Menu>
-			{/if}
-		</Sidebar.Group>
+												<span>{item.name}</span>
+											</a>
+										{/snippet}
+									</Sidebar.MenuButton>
+								</Sidebar.MenuItem>
+							{/each}
+						</Sidebar.Menu>
+					</Sidebar.GroupContent>
+				</Collapsible.Content>
+			</Sidebar.Group>
+		</Collapsible.Root>
 	</div>
 {/if}

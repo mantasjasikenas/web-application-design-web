@@ -184,7 +184,7 @@
 
 <PageRoot
 	title="Project ID{data.params.id}"
-	subtitle="A list of all sections in the project"
+	subtitle="Board with sections and tasks"
 	headerChildren={sectionForm}
 >
 	{#if selectedTask}
