@@ -17,11 +17,12 @@
 	import { superForm, defaults } from 'sveltekit-superforms';
 	import { zod } from 'sveltekit-superforms/adapters';
 	import { toast } from 'svelte-sonner';
-	import { sectionSchema } from './schema';
-	import type { ApiResponse } from '$lib/types';
-	import axios from '$lib/axios';
-	import { createMutation, useQueryClient } from '@tanstack/svelte-query';
 	import { Loader2 } from 'lucide-svelte';
+	import {
+		createAddSectionMutation,
+		createUpdateSectionMutation
+	} from '$lib/queries/section-queries.svelte';
+	import { sectionSchema } from '$lib/schema';
 
 	let { projectId, section, isOpen, onOpenChange }: SectionFormProps = $props();
 
@@ -42,61 +43,35 @@
 
 	const { form: formData, enhance } = $derived(form);
 
-	const queryClient = useQueryClient();
-
-	const createSectionMutation = createMutation({
-		mutationFn: async () => {
-			const res = await axios.post<ApiResponse>(`/projects/${projectId}/sections`, $formData);
-
-			if (!res.data.success) {
-				throw new Error(res.data.message);
-			}
-		},
+	const createSectionMutation = createAddSectionMutation({
 		onSuccess: () => {
-			toast.success('Section created successfully');
-			queryClient.invalidateQueries({ queryKey: ['sections'] });
 			form.reset();
 			onOpenChange(false);
-		},
-		onError: () => {
-			toast.error('Failed to create section');
 		}
 	});
 
-	const updateSectionMutation = createMutation({
-		mutationFn: async () => {
-			if (!section) {
-				throw new Error('Section not found');
-			}
-
-			const response = await axios.patch<ApiResponse>(
-				`/projects/${projectId}/sections/${section.id}`,
-				{
-					name: $formData.name
-				}
-			);
-
-			if (!response.data.success) {
-				throw new Error(response.data.message);
-			}
-		},
+	const updateSectionMutation = createUpdateSectionMutation({
 		onSuccess: () => {
-			toast.success('Section updated successfully');
-			queryClient.invalidateQueries({ queryKey: ['sections'] });
 			form.reset();
 			onOpenChange(false);
-		},
-		onError: () => {
-			toast.error('Failed to update section');
 		}
 	});
 
 	const onSubmit = () => {
 		if (!section) {
-			$createSectionMutation.mutate();
-		} else {
-			$updateSectionMutation.mutate();
+			$createSectionMutation.mutate({
+				projectId,
+				name: $formData.name
+			});
+
+			return;
 		}
+
+		$updateSectionMutation.mutate({
+			projectId,
+			sectionId: section.id,
+			name: $formData.name
+		});
 	};
 </script>
 

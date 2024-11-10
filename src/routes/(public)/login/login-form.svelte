@@ -1,15 +1,14 @@
 <script lang="ts">
 	import * as Card from '$lib/components/ui/card/index.js';
-	import { Input } from '$lib/components/ui/input/index.js';
 	import * as Form from '$lib/components/ui/form';
+	import { Input } from '$lib/components/ui/input/index.js';
 	import { superForm, defaults } from 'sveltekit-superforms';
 	import { zod } from 'sveltekit-superforms/adapters';
-	import { loginSchema, type LoginSchema } from './schema';
 	import { toast } from 'svelte-sonner';
-	import { auth } from '$lib/auth.svelte';
 	import { goto } from '$app/navigation';
-	import { createMutation } from '@tanstack/svelte-query';
 	import { Loader2 } from 'lucide-svelte';
+	import { loginSchema } from '$lib/schema';
+	import { createLoginMutation } from '$lib/queries/auth.queries.svelte';
 
 	const form = superForm(defaults(zod(loginSchema)), {
 		SPA: true,
@@ -25,20 +24,9 @@
 
 	const { form: formData, enhance } = $derived(form);
 
-	const loginMutation = createMutation({
-		mutationFn: async (data: { username: string; password: string }) => {
-			const response = await auth.login(data);
-
-			if (!response.success) {
-				throw new Error(response.message);
-			}
-		},
+	const loginMutation = createLoginMutation({
 		onSuccess: () => {
-			toast.success('Login successful');
 			goto('/app');
-		},
-		onError: (err) => {
-			toast.error('Login failed. ' + err.message);
 		}
 	});
 </script>

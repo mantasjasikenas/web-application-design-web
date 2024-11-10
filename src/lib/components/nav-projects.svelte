@@ -1,19 +1,10 @@
 <script lang="ts">
-	import axios from '$lib/axios';
 	import * as Sidebar from '$lib/components/ui/sidebar/index.js';
-	import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js';
 	import Folder from 'lucide-svelte/icons/folder';
-	import type { ApiResponse, Project } from '$lib/types';
 	import Skeleton from './ui/skeleton/skeleton.svelte';
-	import { createQuery } from '@tanstack/svelte-query';
-	import { reactiveQueryArgs } from '$lib/utils.svelte';
+	import { createProjectQuery } from '$lib/queries/project-queries.svelte';
 
-	const projectsStore = createQuery(
-		reactiveQueryArgs(() => ({
-			queryKey: ['projects'],
-			queryFn: async () => await axios.get<ApiResponse<Project[]>>('/projects')
-		}))
-	);
+	const projectsStore = createProjectQuery();
 
 	let { isLoading, data: responseData } = $derived($projectsStore);
 
@@ -31,7 +22,6 @@
 
 		{#if isLoading}
 			<div class="flex flex-col gap-2">
-				<!--	eslint-disable-next-line @typescript-eslint/no-unused-vars		-->
 				{#each Array(5) as _, index (index)}
 					<Skeleton class="h-[32px] w-full" />
 				{/each}

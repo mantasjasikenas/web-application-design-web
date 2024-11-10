@@ -19,16 +19,19 @@
 	import { superForm, defaults } from 'sveltekit-superforms';
 	import { zod } from 'sveltekit-superforms/adapters';
 	import { toast } from 'svelte-sonner';
-	import { taskSchema } from './schema';
-	import { type ApiResponse, Priorities } from '$lib/types';
-	import axios from '$lib/axios';
-	import { createMutation, useQueryClient } from '@tanstack/svelte-query';
+	import { Priorities } from '$lib/types';
 	import { Loader2 } from 'lucide-svelte';
+	import {
+		createAddTaskMutation,
+		createUpdateTaskMutation
+	} from '$lib/queries/task-queries.svelte';
+	import { taskSchema } from '$lib/schema';
 
 	let { projectId, sectionId, task, isOpen, onOpenChange }: TaskFormProps = $props();
 
 	// FIXME: Default dueDate doesn't update on re-render
-	const form = $derived(superForm(defaults(task, zod(taskSchema)), {
+	const form = $derived(
+		superForm(defaults(task, zod(taskSchema)), {
 			SPA: true,
 			validators: zod(taskSchema),
 			onUpdate({ form }) {
@@ -38,66 +41,45 @@
 					toast.error('Form is invalid');
 				}
 			}
-		}
-	));
+		})
+	);
 
 	const { form: formData, enhance } = $derived(form);
 
-	const queryClient = useQueryClient();
-
-	const createTaskMutation = createMutation({
-		mutationFn: async () => {
-			const res = await axios.post<ApiResponse>(`/projects/${projectId}/sections/${sectionId}/tasks`, $formData);
-
-			if (!res.data.success) {
-				throw new Error(res.data.message);
-			}
-		},
+	const createTaskMutation = createAddTaskMutation({
 		onSuccess: () => {
-			toast.success('Task created successfully');
-			queryClient.invalidateQueries({ queryKey: ['sections'] });
 			form.reset();
 			onOpenChange(false);
-		},
-		onError: () => {
-			toast.error('Failed to create task');
 		}
 	});
 
-	const updateTaskMutation = createMutation({
-		mutationFn: async () => {
-			if (!task) {
-				throw new Error('Task not found');
-			}
-
-			const response = await axios.put<ApiResponse>(`/projects/${projectId}/sections/${sectionId}/tasks`, $formData);
-
-			if (!response.data.success) {
-				throw new Error(response.data.message);
-			}
-		},
+	const updateTaskMutation = createUpdateTaskMutation({
 		onSuccess: () => {
-			toast.success('Task updated successfully');
-			queryClient.invalidateQueries({ queryKey: ['sections'] });
 			form.reset();
 			onOpenChange(false);
-		},
-		onError: () => {
-			toast.error('Failed to update task');
 		}
 	});
 
 	const onSubmit = () => {
 		if (!task) {
-			$createTaskMutation.mutate();
-		} else {
-			$updateTaskMutation.mutate();
+			$createTaskMutation.mutate({
+				projectId,
+				sectionId,
+				taskData: $formData
+			});
+
+			return;
 		}
+
+		$updateTaskMutation.mutate({
+			projectId,
+			sectionId,
+			taskData: $formData
+		});
 	};
 </script>
 
-
-<Dialog.Root open={isOpen} onOpenChange={onOpenChange}>
+<Dialog.Root open={isOpen} {onOpenChange}>
 	<Dialog.Content class="sm:max-w-md">
 		<Dialog.Header>
 			<Dialog.Title>{task ? 'Update task' : 'Create new task'}</Dialog.Title>
@@ -136,7 +118,7 @@
 								name="priority"
 							>
 								<Select.Trigger {...props}>
-									{$formData.priority ?? "Select priority"}
+									{$formData.priority ?? 'Select priority'}
 								</Select.Trigger>
 								<Select.Content>
 									{#each Priorities as priority}
@@ -144,7 +126,6 @@
 									{/each}
 								</Select.Content>
 							</Select.Root>
-
 						{/snippet}
 					</Form.Control>
 					<Form.FieldErrors />
@@ -170,9 +151,7 @@
 					<Form.FieldErrors />
 				</Form.Field>
 
-				<Form.Button
-					disabled={$createTaskMutation.isPending}
-				>
+				<Form.Button disabled={$createTaskMutation.isPending}>
 					{#if $createTaskMutation.isPending}
 						<Loader2 class="mr-2 h-4 w-4 animate-spin" />
 					{/if}

@@ -1,74 +1,31 @@
 <script lang="ts">
-	import { reactiveQueryArgs } from '$lib/utils.svelte';
-	import { createMutation, createQuery, useQueryClient } from '@tanstack/svelte-query';
 	import type { PageData } from './$types';
-	import type { ApiResponse, Section, Task } from '$lib/types';
-	import axios from '$lib/axios';
+	import type { Section, Task } from '$lib/types';
 	import LoadingIndicator from '$lib/components/loading-indicator.svelte';
-	import PageTitle from '$lib/components/page-title.svelte';
 	import SectionForm from './(components)/section-form.svelte';
-	import { toast } from 'svelte-sonner';
 	import ConfirmDialog from '$lib/components/confirm-dialog.svelte';
 	import SectionColumn, { type SectionAction } from './(components)/section-column.svelte';
 	import TaskForm from './(components)/task-form.svelte';
 	import { fade } from 'svelte/transition';
 	import PageRoot from '$lib/components/page-root.svelte';
 	import type { TaskAction } from './(components)/task-card.svelte';
+	import {
+		createDeleteSectionMutation,
+		createSectionQuery
+	} from '$lib/queries/section-queries.svelte';
+	import { createDeleteTaskMutation } from '$lib/queries/task-queries.svelte';
 
-	const queryClient = useQueryClient();
 	let { data }: { data: PageData } = $props();
 
-	const sectionsStore = createQuery(
-		reactiveQueryArgs(() => ({
-			queryKey: ['sections', data.params.id],
-			queryFn: async () =>
-				await axios.get<ApiResponse<Section[]>>(`/projects/${data.params.id}/sections`, {
-					params: {
-						withTasks: true
-					}
-				})
-		}))
+	const sectionsQuery = $derived(
+		createSectionQuery({
+			projectId: data.params.id
+		})
 	);
+	const deleteSectionMutation = createDeleteSectionMutation();
+	const deleteTaskMutation = createDeleteTaskMutation();
 
-	const deleteSectionMutation = createMutation({
-		mutationFn: async (id: number) => {
-			const response = await axios.delete<ApiResponse>(
-				`/projects/${data.params.id}/sections/${id}`
-			);
-
-			if (response.status !== 204) {
-				throw new Error(response.data.message);
-			}
-		},
-		onSuccess: () => {
-			toast.success('Project deleted successfully');
-			queryClient.invalidateQueries({ queryKey: ['sections'] });
-		},
-		onError: () => {
-			toast.error('Failed to delete project');
-		}
-	});
-
-	const deleteTaskMutation = createMutation({
-		mutationFn: async (task: Task) => {
-			const response = await axios.delete<ApiResponse>(
-				`/projects/${data.params.id}/sections/${task.sectionId}/tasks/${task.id}`
-			);
-
-			if (response.status !== 204) {
-				throw new Error(response.data.message);
-			}
-		},
-		onSuccess: () => {
-			toast.success('Task deleted successfully');
-			queryClient.invalidateQueries({ queryKey: ['sections'] });
-		},
-		onError: () => {
-			toast.error('Failed to delete task');
-		}
-	});
-
-	let { error, isLoading, isRefetching, data: responseData } = $derived($sectionsStore);
+	let { error, isLoading, isRefetching, data: responseData } = $derived($sectionsQuery);
 	let sections = $derived(responseData?.data.data || []);
 
 	let isSectionFormDialogOpen = $state(false);
@@ -153,11 +110,19 @@
 		}}
 		onConfirm={() => {
 			if (selectedTask) {
-				$deleteTaskMutation.mutate(selectedTask);
+				$deleteTaskMutation.mutate({
+					projectId: data.params.id,
+					task: selectedTask
+				});
+
 				selectedTask = undefined;
 				isDeleteConfirmDialogOpen = false;
 			} else if (selectedSection) {
-				$deleteSectionMutation.mutate(selectedSection.id);
+				$deleteSectionMutation.mutate({
+					projectId: data.params.id,
+					sectionId: selectedSection.id
+				});
+
 				selectedSection = undefined;
 				isDeleteConfirmDialogOpen = false;
 			}

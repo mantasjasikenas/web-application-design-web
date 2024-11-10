@@ -10,19 +10,19 @@
 
 <script lang="ts">
 	import { Button } from '$lib/components/ui/button/index.js';
-	import * as Card from '$lib/components/ui/card/index.js';
 	import { Input } from '$lib/components/ui/input/index.js';
-	import { Label } from '$lib/components/ui/label/index.js';
+	import * as Card from '$lib/components/ui/card/index.js';
 	import * as Form from '$lib/components/ui/form';
 	import * as Dialog from '$lib/components/ui/dialog';
 	import { superForm, defaults } from 'sveltekit-superforms';
 	import { zod } from 'sveltekit-superforms/adapters';
 	import { toast } from 'svelte-sonner';
-	import { type ProjectSchema, projectSchema } from './schema';
-	import type { ApiResponse } from '$lib/types';
-	import axios from '$lib/axios';
-	import { createMutation, useQueryClient } from '@tanstack/svelte-query';
+	import { projectSchema } from '$lib/schema';
 	import { Loader2 } from 'lucide-svelte';
+	import {
+		createAddProjectMutation,
+		createUpdateProjectMutation
+	} from '$lib/queries/project-queries.svelte';
 
 	let { project, isOpen, onOpenChange }: ProjectFormProps = $props();
 
@@ -42,58 +42,25 @@
 
 	const { form: formData, enhance } = $derived(form);
 
-	const queryClient = useQueryClient();
-
-	const createProjectMutation = createMutation({
-		mutationFn: async () => {
-			const response = await axios.post<ApiResponse>('/projects', $formData);
-
-			if (!response.data.success) {
-				throw new Error(response.data.message);
-			}
-		},
+	const createProjectMutation = createAddProjectMutation({
 		onSuccess: () => {
-			toast.success('Project created successfully');
-			queryClient.invalidateQueries({ queryKey: ['projects'] });
 			form.reset();
 			onOpenChange(false);
-		},
-		onError: () => {
-			toast.error('Failed to create project');
 		}
 	});
 
-	const updateProjectMutation = createMutation({
-		mutationFn: async () => {
-			if (!project) {
-				throw new Error('Project not found');
-			}
-
-			const response = await axios.patch<ApiResponse>(`/projects/${project.id}`, {
-				description: $formData.description,
-				name: $formData.name
-			});
-
-			if (!response.data.success) {
-				throw new Error(response.data.message);
-			}
-		},
+	const updateProjectMutation = createUpdateProjectMutation({
 		onSuccess: () => {
-			toast.success('Project updated successfully');
-			queryClient.invalidateQueries({ queryKey: ['projects'] });
 			form.reset();
 			onOpenChange(false);
-		},
-		onError: () => {
-			toast.error('Failed to update project');
 		}
 	});
 
 	const onSubmit = () => {
 		if (!project) {
-			$createProjectMutation.mutate();
+			$createProjectMutation.mutate($formData);
 		} else {
-			$updateProjectMutation.mutate();
+			$updateProjectMutation.mutate({ id: project.id, ...$formData });
 		}
 	};
 </script>

@@ -4,12 +4,13 @@
 	import * as Form from '$lib/components/ui/form';
 	import { superForm, defaults } from 'sveltekit-superforms';
 	import { zod } from 'sveltekit-superforms/adapters';
-	import { signupSchema } from './schema';
 	import { toast } from 'svelte-sonner';
 	import { createMutation } from '@tanstack/svelte-query';
 	import { auth } from '$lib/auth.svelte';
 	import { goto } from '$app/navigation';
 	import { Loader2 } from 'lucide-svelte';
+	import { signupSchema } from '$lib/schema';
+	import { createSignupMutation } from '$lib/queries/auth.queries.svelte';
 
 	const form = superForm(defaults(zod(signupSchema)), {
 		SPA: true,
@@ -25,24 +26,9 @@
 
 	const { form: formData, enhance } = $derived(form);
 
-	const signupMutation = createMutation({
-		mutationFn: async (data: { username: string; email: string; password: string }) => {
-			const response = await auth.register({
-				username: data.username,
-				email: data.email,
-				password: data.password
-			});
-
-			if (!response.success) {
-				throw new Error(response.message);
-			}
-		},
+	const signupMutation = createSignupMutation({
 		onSuccess: () => {
-			toast.success('Sign up successful');
 			goto('/login');
-		},
-		onError: (error) => {
-			toast.error(`Sign up failed. ${error.message}`);
 		}
 	});
 </script>
