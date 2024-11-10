@@ -1,6 +1,5 @@
 import { z } from 'zod';
 import { Priorities } from '$lib/types';
-import { generateDate } from '$lib/date';
 
 export const projectSchema = z.object({
 	name: z.string().min(1, { message: 'Name is required' }),
@@ -11,13 +10,22 @@ export const sectionSchema = z.object({
 	name: z.string().min(1, { message: 'Section name is required' })
 });
 
-export const taskSchema = z.object({
-	name: z.string().min(1, { message: 'Task name is required' }),
-	description: z.string().min(1, { message: 'Task description is required' }),
-	priority: z.enum(Priorities, { message: 'Invalid priority' }),
-	completed: z.boolean().default(false),
-	dueDate: z.string().default(generateDate)
-});
+export const taskSchema = z
+	.object({
+		name: z.string().min(1, { message: 'Task name is required' }),
+		description: z.string().min(1, { message: 'Task description is required' }),
+		priority: z.enum(Priorities, { message: 'Invalid priority' }),
+		completed: z.boolean().default(false),
+		dueDate: z.string()
+	})
+	.refine(
+		(data) => {
+			const date = new Date(data.dueDate);
+
+			return !isNaN(date.getTime());
+		},
+		{ message: 'Invalid due date', path: ['dueDate'] }
+	);
 
 export const loginSchema = z.object({
 	username: z.string().min(3, { message: 'Username must be at least 3 characters long' }),

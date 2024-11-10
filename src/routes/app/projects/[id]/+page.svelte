@@ -31,6 +31,7 @@
 	let isSectionFormDialogOpen = $state(false);
 	let isDeleteConfirmDialogOpen = $state(false);
 	let isAddTaskDialogOpen = $state(false);
+	let isTaskEditDisabled = $state(false);
 
 	let selectedSection = $state<Section | undefined>(undefined);
 	let selectedTask = $state<Task | undefined>(undefined);
@@ -56,6 +57,13 @@
 		isAddTaskDialogOpen = true;
 	};
 
+	const onTaskView = (task: Task, section: Section) => {
+		selectedTask = task;
+		selectedSection = section;
+		isTaskEditDisabled = true;
+		isAddTaskDialogOpen = true;
+	};
+
 	const onSectionEdit = (section: Section) => {
 		selectedSection = section;
 		isSectionFormDialogOpen = true;
@@ -68,6 +76,9 @@
 				break;
 			case 'delete':
 				onTaskDelete(task);
+				break;
+			case 'view':
+				onTaskView(task, section);
 				break;
 		}
 	};
@@ -88,7 +99,6 @@
 </script>
 
 <!--TODO refactor this component, migrate logic-->
-
 {#snippet confirmDeleteDialog(item: Task | Section)}
 	<ConfirmDialog
 		isOpen={isDeleteConfirmDialogOpen}
@@ -99,12 +109,6 @@
 				return;
 			}
 
-			// if (selectedTask) {
-			// 	selectedTask = undefined;
-			// } else if (selectedSection) {
-			// 	selectedSection = undefined;
-			// }
-			//
 			selectedTask = undefined;
 			selectedSection = undefined;
 		}}
@@ -162,7 +166,12 @@
 			if (!value) {
 				selectedSection = undefined;
 				selectedTask = undefined;
+				isTaskEditDisabled = false;
 			}
+		}}
+		isEditDisabled={isTaskEditDisabled}
+		onEditButtonClick={() => {
+			isTaskEditDisabled = false;
 		}}
 	/>
 {/snippet}

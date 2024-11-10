@@ -2,7 +2,7 @@ import { createMutation, useQueryClient } from '@tanstack/svelte-query';
 import type { ApiResponse, Task } from '$lib/types';
 import axios from '$lib/axios';
 import { toast } from 'svelte-sonner';
-import type { TaskSchema } from '$lib/schema';
+import { taskSchema, type TaskSchema } from '$lib/schema';
 
 export function createDeleteTaskMutation({
 	onSuccess,
@@ -92,15 +92,17 @@ export function createUpdateTaskMutation({
 		mutationFn: async ({
 			projectId,
 			sectionId,
+			taskId,
 			taskData
 		}: {
 			projectId: string;
 			sectionId: number;
+			taskId: number;
 			taskData: TaskSchema;
 		}) => {
-			const response = await axios.put<ApiResponse>(
-				`/projects/${projectId}/sections/${sectionId}/tasks`,
-				taskData
+			const response = await axios.patch<ApiResponse>(
+				`/projects/${projectId}/sections/${sectionId}/tasks/${taskId}`,
+				taskSchema.parse(taskData)
 			);
 
 			if (!response.data.success) {

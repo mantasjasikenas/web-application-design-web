@@ -1,7 +1,7 @@
 <script lang="ts" module>
 	import type { Task } from '$lib/types';
 
-	export type TaskAction = 'edit' | 'delete';
+	export type TaskAction = 'edit' | 'delete' | 'view';
 
 	export type TaskCardProps = {
 		task: Task;
@@ -22,7 +22,10 @@
 	const { task, onAction }: TaskCardProps = $props();
 </script>
 
-<Card.Root class="min-h-[68px] w-[258px] shrink-0 hover:border-solid hover:border-gray-400">
+<Card.Root
+	class="min-h-[68px] w-[258px] shrink-0 cursor-pointer hover:border-solid hover:border-gray-400"
+	onclick={() => onAction('view')}
+>
 	<div class="flex flex-row gap-2 overflow-hidden p-4">
 		<div class="flex h-full items-center justify-start space-x-2">
 			<Checkbox class="cursor-default" checked={task.completed} controlledChecked={true} />
@@ -35,9 +38,7 @@
 				{task.name}
 			</div>
 
-			<div
-				class="line-clamp-1 text-xs font-medium text-gray-400 hover:line-clamp-none hover:text-nowrap"
-			>
+			<div class="line-clamp-1 text-xs font-medium text-gray-400">
 				{task.description}
 			</div>
 

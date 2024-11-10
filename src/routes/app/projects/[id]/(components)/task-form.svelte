@@ -7,6 +7,8 @@
 		task?: Task;
 		isOpen: boolean;
 		onOpenChange: (isOpen: boolean) => void;
+		isEditDisabled: boolean;
+		onEditButtonClick: () => void;
 	};
 </script>
 
@@ -20,14 +22,24 @@
 	import { zod } from 'sveltekit-superforms/adapters';
 	import { toast } from 'svelte-sonner';
 	import { Priorities } from '$lib/types';
-	import { Loader2 } from 'lucide-svelte';
+	import { CalendarClock, Loader2 } from 'lucide-svelte';
 	import {
 		createAddTaskMutation,
 		createUpdateTaskMutation
 	} from '$lib/queries/task-queries.svelte';
 	import { taskSchema } from '$lib/schema';
+	import { Button } from '$lib/components/ui/button';
+	import { generateCurrentDateTime } from '$lib/date';
 
-	let { projectId, sectionId, task, isOpen, onOpenChange }: TaskFormProps = $props();
+	let {
+		projectId,
+		sectionId,
+		task,
+		isOpen,
+		onOpenChange,
+		isEditDisabled,
+		onEditButtonClick
+	}: TaskFormProps = $props();
 
 	// FIXME: Default dueDate doesn't update on re-render
 	const form = $derived(
@@ -74,6 +86,7 @@
 		$updateTaskMutation.mutate({
 			projectId,
 			sectionId,
+			taskId: task.id,
 			taskData: $formData
 		});
 	};
@@ -82,7 +95,9 @@
 <Dialog.Root open={isOpen} {onOpenChange}>
 	<Dialog.Content class="sm:max-w-md">
 		<Dialog.Header>
-			<Dialog.Title>{task ? 'Update task' : 'Create new task'}</Dialog.Title>
+			<Dialog.Title
+				>{!task ? 'Create new task' : isEditDisabled ? 'Task details' : 'Edit task'}</Dialog.Title
+			>
 		</Dialog.Header>
 		<form method="POST" use:enhance>
 			<div class="grid gap-2">
@@ -90,7 +105,12 @@
 					<Form.Control>
 						{#snippet children({ props })}
 							<Form.Label class="data-[fs-error]:text-primary">Name</Form.Label>
-							<Input {...props} bind:value={$formData.name} />
+							<Input
+								class="disabled:cursor-default"
+								disabled={isEditDisabled}
+								{...props}
+								bind:value={$formData.name}
+							/>
 						{/snippet}
 					</Form.Control>
 					<Form.FieldErrors />
@@ -100,7 +120,12 @@
 					<Form.Control>
 						{#snippet children({ props })}
 							<Form.Label class="data-[fs-error]:text-primary">Description</Form.Label>
-							<Input {...props} bind:value={$formData.description} />
+							<Input
+								class="disabled:cursor-default"
+								disabled={isEditDisabled}
+								{...props}
+								bind:value={$formData.description}
+							/>
 						{/snippet}
 					</Form.Control>
 					<Form.FieldErrors />
@@ -112,12 +137,13 @@
 							<Form.Label class="data-[fs-error]:text-primary">Priority</Form.Label>
 
 							<Select.Root
+								disabled={isEditDisabled}
 								allowDeselect={false}
 								type="single"
 								bind:value={$formData.priority}
 								name="priority"
 							>
-								<Select.Trigger {...props}>
+								<Select.Trigger class="disabled:cursor-default" {...props}>
 									{$formData.priority ?? 'Select priority'}
 								</Select.Trigger>
 								<Select.Content>
@@ -134,8 +160,16 @@
 				<Form.Field {form} name="completed">
 					<Form.Control>
 						{#snippet children({ props })}
-							<Checkbox {...props} bind:checked={$formData.completed} />
-							<Form.Label class="data-[fs-error]:text-primary">Completed</Form.Label>
+							<Checkbox
+								class="disabled:cursor-default"
+								disabled={isEditDisabled}
+								{...props}
+								bind:checked={$formData.completed}
+							/>
+							<Form.Label
+								class="pl-1 disabled:cursor-default peer-disabled:cursor-default data-[fs-error]:text-primary"
+								>Completed</Form.Label
+							>
 						{/snippet}
 					</Form.Control>
 					<Form.FieldErrors />
@@ -145,19 +179,41 @@
 					<Form.Control>
 						{#snippet children({ props })}
 							<Form.Label class="data-[fs-error]:text-primary">Due date</Form.Label>
-							<Input {...props} type="datetime-local" bind:value={$formData.dueDate} />
+							<div class="flex flex-row gap-1">
+								<Input
+									class="disabled:cursor-default"
+									disabled={isEditDisabled}
+									{...props}
+									type="datetime-local"
+									step="1"
+									bind:value={$formData.dueDate}
+								/>
+								<!--suppress JSValidateTypes -->
+								<Button
+									class="disabled:cursor-default"
+									aria-label="Set due date to current date and time"
+									variant="outline"
+									disabled={isEditDisabled}
+									onclick={() => ($formData.dueDate = generateCurrentDateTime())}
+									><CalendarClock /></Button
+								>
+							</div>
 						{/snippet}
 					</Form.Control>
 					<Form.FieldErrors />
 				</Form.Field>
 
-				<Form.Button disabled={$createTaskMutation.isPending}>
-					{#if $createTaskMutation.isPending}
-						<Loader2 class="mr-2 h-4 w-4 animate-spin" />
-					{/if}
+				{#if isEditDisabled}
+					<Button onclick={onEditButtonClick}>Edit</Button>
+				{:else}
+					<Form.Button disabled={$createTaskMutation.isPending}>
+						{#if $createTaskMutation.isPending}
+							<Loader2 class="mr-2 h-4 w-4 animate-spin" />
+						{/if}
 
-					Confirm
-				</Form.Button>
+						Confirm
+					</Form.Button>
+				{/if}
 			</div>
 		</form>
 	</Dialog.Content>
