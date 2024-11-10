@@ -2,14 +2,11 @@
 	import * as Sidebar from '$lib/components/ui/sidebar/index.js';
 	import * as Collapsible from '$lib/components/ui/collapsible/index.js';
 	import Folder from 'lucide-svelte/icons/folder';
-	import Skeleton from './ui/skeleton/skeleton.svelte';
 	import { createProjectQuery } from '$lib/queries/project-queries.svelte';
-	import { fade, slide } from 'svelte/transition';
-	import ChevronDown from 'lucide-svelte/icons/chevron-down';
+	import { fade } from 'svelte/transition';
 	import { page } from '$app/stores';
-	import { FolderOpen, FolderOpenDot } from 'lucide-svelte';
-	import ChevronUp from 'lucide-svelte/icons/chevron-up';
 	import ChevronRight from 'lucide-svelte/icons/chevron-right';
+	import { cn } from '$lib/utils';
 
 	const projectsStore = createProjectQuery();
 
@@ -44,16 +41,23 @@
 						<Sidebar.Menu>
 							{#each sideBarProjects as item, index (index)}
 								<Sidebar.MenuItem>
-									<Sidebar.MenuButton>
+									<Sidebar.MenuButton
+										class={cn(
+											'hover:underline',
+											$page.url.pathname === item.url
+												? 'font-medium text-foreground'
+												: 'text-muted-foreground'
+										)}
+									>
 										{#snippet child({ props })}
 											<a href={item.url} {...props}>
-												{#if route.pathname === item.url}
-													<FolderOpen />
-												{:else}
-													<Folder />
-												{/if}
-
-												<span>{item.name}</span>
+												<Folder class={cn('transition')} />
+												<span
+													class={cn(
+														'transition',
+														route.pathname.startsWith(item.url) ? 'font-bold' : ''
+													)}>{item.name}</span
+												>
 											</a>
 										{/snippet}
 									</Sidebar.MenuButton>
