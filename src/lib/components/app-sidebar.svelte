@@ -25,6 +25,7 @@
 	import * as Sidebar from '$lib/components/ui/sidebar/index.js';
 	import type { ComponentProps } from 'svelte';
 	import ToggleTheme from './toggle-theme.svelte';
+	import * as Icon from '../icons/index.js';
 
 	let { ref = $bindable(null), ...restProps }: ComponentProps<typeof Sidebar.Root> = $props();
 </script>
@@ -39,7 +40,7 @@
 							<div
 								class="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground"
 							>
-								<img src="tornado.svg" class="size-6 animate-pulse" alt="App Logo" />
+								<Icon.Logo class="size-6" />
 							</div>
 							<div class="grid flex-1 text-left text-sm leading-tight">
 								<span class="truncate font-semibold">Tasks Inc</span>

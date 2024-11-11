@@ -23,7 +23,7 @@
 </script>
 
 <Card.Root
-	class="min-h-[68px] w-[258px] shrink-0 cursor-pointer hover:border-solid hover:border-gray-400"
+	class="min-h-[68px] w-[258px] shrink-0 cursor-pointer shadow-md transition hover:border-solid hover:border-gray-400"
 	onclick={() => onAction('view')}
 >
 	<div class="flex flex-row gap-2 overflow-hidden p-4">

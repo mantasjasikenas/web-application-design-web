@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg"
+     width="48" height="48" viewBox="0 0 24 24"
+     fill="none" stroke="none"
+     stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+>
+    <style>
+        path:nth-child(even) { stroke: #fce7f3; }
+        path:nth-child(odd) { stroke: #ec4899; }
+
+        @keyframes pulse-even { 50% { opacity: .5; } }
+        @keyframes pulse-odd { 50% { opacity: .5; } }
+
+        .animate-pulse-even { animation: pulse-even 1s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+        .animate-pulse-odd { animation: pulse-odd 0.5s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+
+        .group {
+            transform: scale(0.8);
+            transition: opacity 1.6s ease-out 0s, transform 7.2s linear 0s;
+            transform-origin: center center;
+        }
+    </style>
+
+    <rect width="48" height="48" fill="black"/>
+    <g class="group">
+        <path class="animate-pulse-odd" d="M21 4H3"/>
+        <path class="animate-pulse-even" d="M18 8H6"/>
+        <path class="animate-pulse-odd" d="M19 12H9"/>
+        <path class="animate-pulse-even" d="M16 16h-6"/>
+        <path class="animate-pulse-odd" d="M11 20H9"/>
+    </g>
+</svg>

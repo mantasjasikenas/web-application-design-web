@@ -1,11 +1,11 @@
-import { writable } from "svelte/store";
+import { writable } from 'svelte/store';
 
 export const reactiveQueryArgs = <T>(cb: () => T) => {
-  const store = writable<T>();
+	const store = writable<T>();
 
-  $effect.pre(() => {
-    store.set(cb());
-  });
+	$effect.pre(() => {
+		store.set(cb());
+	});
 
-  return store;
+	return store;
 };
