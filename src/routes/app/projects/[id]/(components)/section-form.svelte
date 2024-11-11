@@ -17,7 +17,7 @@
 	import { superForm, defaults } from 'sveltekit-superforms';
 	import { zod } from 'sveltekit-superforms/adapters';
 	import { toast } from 'svelte-sonner';
-	import { Loader2 } from 'lucide-svelte';
+	import { Loader2, Plus } from 'lucide-svelte';
 	import {
 		createAddSectionMutation,
 		createUpdateSectionMutation
@@ -77,7 +77,10 @@
 
 <Dialog.Root open={isOpen} {onOpenChange}>
 	<Dialog.Trigger>
-		<Button size="sm">Add section</Button>
+		<Button variant="ghost" class="flex w-full items-center justify-center">
+			<Plus />
+			Add section
+		</Button>
 	</Dialog.Trigger>
 	<Dialog.Content class="sm:max-w-md">
 		<Dialog.Header>

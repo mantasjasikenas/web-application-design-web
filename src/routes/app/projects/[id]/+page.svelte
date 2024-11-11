@@ -7,6 +7,7 @@
 	import SectionColumn, { type SectionAction } from './(components)/section-column.svelte';
 	import TaskForm from './(components)/task-form.svelte';
 	import { fade } from 'svelte/transition';
+	import { flip } from 'svelte/animate';
 	import PageRoot from '$lib/components/page-root.svelte';
 	import type { TaskAction } from './(components)/task-card.svelte';
 	import {
@@ -171,6 +172,12 @@
 				onSectionAction={(action) => onSectionAction(action, section)}
 			/>
 		{/each}
+
+		<div class="w-[282px] shrink-0 pr-4">
+			<div class="flex h-full flex-col gap-4">
+				{@render sectionForm()}
+			</div>
+		</div>
 	</div>
 {/snippet}
 
@@ -217,7 +224,6 @@
 	<PageRoot
 		title={project?.name || `Project ID${data.params.id}`}
 		subtitle={project?.description || 'Project board with sections and tasks'}
-		headerChildren={sectionForm}
 	>
 		{#if selectedTask}
 			{@render confirmDeleteDialog(selectedTask)}
@@ -235,10 +241,6 @@
 			<p>{errorSection.message}</p>
 		{/if}
 
-		{#if sections.length}
-			{@render sectionsContainer()}
-		{:else if !isLoadingSection}
-			<p>No sections found.</p>
-		{/if}
+		{@render sectionsContainer()}
 	</PageRoot>
 {/if}
