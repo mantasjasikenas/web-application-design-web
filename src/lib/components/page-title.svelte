@@ -4,7 +4,7 @@
 	export type PageTitleProps = {
 		title: string;
 		subtitle?: string;
-		children?: Snippet<[]> | undefined
+		children?: Snippet<[]> | undefined;
 	};
 </script>
 
@@ -14,18 +14,17 @@
 	let { title, subtitle, children }: PageTitleProps = $props();
 </script>
 
-<div class="space-y-0.5 flex flex-row">
+<div class="flex flex-row space-y-0.5">
 	<div>
-		<h2 class="text-2xl font-bold tracking-tight">{title}</h2>
+		<h2 class="h-8 text-2xl font-bold tracking-tight">{title}</h2>
 
 		{#if subtitle}
-			<p class="text-muted-foreground">{subtitle}</p>
+			<p class="text-muted-foreground transition">{subtitle}</p>
 		{/if}
 	</div>
 
 	<div class="ml-auto flex justify-center">
 		{@render children?.()}
 	</div>
-
 </div>
 <Separator class="my-6" />

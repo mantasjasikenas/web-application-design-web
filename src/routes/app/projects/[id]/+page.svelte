@@ -11,22 +11,42 @@
 	import type { TaskAction } from './(components)/task-card.svelte';
 	import {
 		createDeleteSectionMutation,
+		createProjectSectionsQuery,
 		createSectionQuery
 	} from '$lib/queries/section-queries.svelte';
 	import { createDeleteTaskMutation } from '$lib/queries/task-queries.svelte';
 
 	let { data }: { data: PageData } = $props();
 
-	const sectionsQuery = $derived(
-		createSectionQuery({
+	const query = $derived(
+		createProjectSectionsQuery({
 			projectId: data.params.id
 		})
 	);
+
+	const [sectionsQuery, projectQuery] = $derived($query);
+
 	const deleteSectionMutation = createDeleteSectionMutation();
 	const deleteTaskMutation = createDeleteTaskMutation();
 
-	let { error, isLoading, isRefetching, data: responseData } = $derived($sectionsQuery);
-	let sections = $derived(responseData?.data.data || []);
+	let {
+		error: errorSection,
+		isLoading: isLoadingSection,
+		isRefetching: isRefetchingSection,
+		data: sectionData
+	} = $derived(sectionsQuery);
+	let {
+		error: errorProject,
+		isLoading: isLoadingProject,
+		isRefetching: isRefetchingProject,
+		data: projectData
+	} = $derived(projectQuery);
+
+	let sections = $derived(sectionData?.data.data || []);
+	let project = $derived(projectData?.data.data);
+
+	let isLoading = $derived(isLoadingSection || isLoadingProject);
+	let isRefetching = $derived(isRefetchingSection || isRefetchingProject);
 
 	let isSectionFormDialogOpen = $state(false);
 	let isDeleteConfirmDialogOpen = $state(false);
@@ -191,34 +211,34 @@
 	/>
 {/snippet}
 
-<PageRoot
-	title="Project ID{data.params.id}"
-	subtitle="Board with sections and tasks"
-	headerChildren={sectionForm}
->
-	{#if selectedTask}
-		{@render confirmDeleteDialog(selectedTask)}
-	{/if}
+{#if isLoading}
+	<LoadingIndicator class="size-6" />
+{:else}
+	<PageRoot
+		title={project?.name || `Project ID${data.params.id}`}
+		subtitle={project?.description || 'Project board with sections and tasks'}
+		headerChildren={sectionForm}
+	>
+		{#if selectedTask}
+			{@render confirmDeleteDialog(selectedTask)}
+		{/if}
 
-	{#if selectedSection}
-		{@render confirmDeleteDialog(selectedSection)}
-	{/if}
+		{#if selectedSection}
+			{@render confirmDeleteDialog(selectedSection)}
+		{/if}
 
-	{#if selectedSection?.id}
-		{@render taskForm()}
-	{/if}
+		{#if selectedSection?.id}
+			{@render taskForm()}
+		{/if}
 
-	{#if isLoading || isRefetching}
-		<LoadingIndicator class="size-6" />
-	{/if}
+		{#if errorSection}
+			<p>{errorSection.message}</p>
+		{/if}
 
-	{#if error}
-		<p>{error.message}</p>
-	{/if}
-
-	{#if sections.length}
-		{@render sectionsContainer()}
-	{:else if !isLoading}
-		<p>No sections found.</p>
-	{/if}
-</PageRoot>
+		{#if sections.length}
+			{@render sectionsContainer()}
+		{:else if !isLoadingSection}
+			<p>No sections found.</p>
+		{/if}
+	</PageRoot>
+{/if}

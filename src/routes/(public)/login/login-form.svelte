@@ -43,7 +43,7 @@
 					<Form.Control>
 						{#snippet children({ props })}
 							<Form.Label class="data-[fs-error]:text-primary">Username</Form.Label>
-							<Input {...props} bind:value={$formData.username} />
+							<Input autocomplete="username" {...props} bind:value={$formData.username} />
 						{/snippet}
 					</Form.Control>
 					<Form.FieldErrors />
@@ -53,7 +53,12 @@
 					<Form.Control>
 						{#snippet children({ props })}
 							<Form.Label class="data-[fs-error]:text-primary">Password</Form.Label>
-							<Input {...props} type="password" bind:value={$formData.password} />
+							<Input
+								{...props}
+								type="password"
+								autocomplete="current-password"
+								bind:value={$formData.password}
+							/>
 						{/snippet}
 					</Form.Control>
 					<Form.FieldErrors />

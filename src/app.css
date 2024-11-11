@@ -80,3 +80,16 @@
 *:focus::-webkit-scrollbar-thumb {
 	background-color: hsl(var(--border));
 }
+
+@media (hover: none) {
+	*::-webkit-scrollbar {
+		background-color: transparent;
+		width: 4px;
+		height: 4px;
+	}
+
+	*::-webkit-scrollbar-thumb {
+		background-color: hsl(var(--border));
+		border-radius: 14px;
+	}
+}

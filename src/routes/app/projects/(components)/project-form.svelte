@@ -60,7 +60,10 @@
 		if (!project) {
 			$createProjectMutation.mutate($formData);
 		} else {
-			$updateProjectMutation.mutate({ id: project.id, ...$formData });
+			$updateProjectMutation.mutate({
+				id: project.id,
+				projectData: $formData
+			});
 		}
 	};
 </script>

@@ -45,7 +45,7 @@
 					<Form.Control>
 						{#snippet children({ props })}
 							<Form.Label class="data-[fs-error]:text-primary">Email</Form.Label>
-							<Input {...props} bind:value={$formData.email} />
+							<Input type="email" autocomplete="email" {...props} bind:value={$formData.email} />
 						{/snippet}
 					</Form.Control>
 					<Form.FieldErrors />
@@ -55,7 +55,7 @@
 					<Form.Control>
 						{#snippet children({ props })}
 							<Form.Label class="data-[fs-error]:text-primary">Username</Form.Label>
-							<Input {...props} bind:value={$formData.username} />
+							<Input autocomplete="username" {...props} bind:value={$formData.username} />
 						{/snippet}
 					</Form.Control>
 					<Form.FieldErrors />
@@ -65,7 +65,12 @@
 					<Form.Control>
 						{#snippet children({ props })}
 							<Form.Label class="data-[fs-error]:text-primary">Password</Form.Label>
-							<Input {...props} type="password" bind:value={$formData.password} />
+							<Input
+								{...props}
+								type="password"
+								autocomplete="new-password"
+								bind:value={$formData.password}
+							/>
 						{/snippet}
 					</Form.Control>
 					<Form.FieldErrors />
@@ -75,7 +80,12 @@
 					<Form.Control>
 						{#snippet children({ props })}
 							<Form.Label class="data-[fs-error]:text-primary">Confirm Password</Form.Label>
-							<Input {...props} type="password" bind:value={$formData.confirmPassword} />
+							<Input
+								{...props}
+								type="password"
+								autocomplete="new-password"
+								bind:value={$formData.confirmPassword}
+							/>
 						{/snippet}
 					</Form.Control>
 					<Form.FieldErrors />
