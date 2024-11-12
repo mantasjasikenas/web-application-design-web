@@ -17,9 +17,10 @@
 			if (form.valid) {
 				$loginMutation.mutate(form.data);
 			} else {
-				toast.error('Form is invalid');
+				toast.error('Please fill in the form correctly');
 			}
-		}
+		},
+		resetForm: false
 	});
 
 	const { form: formData, enhance } = $derived(form);
@@ -27,6 +28,7 @@
 	const loginMutation = createLoginMutation({
 		onSuccess: () => {
 			goto('/app');
+			form.reset();
 		}
 	});
 </script>
@@ -37,7 +39,7 @@
 		<Card.Description>Enter your email below to login to your account</Card.Description>
 	</Card.Header>
 	<Card.Content>
-		<form method="POST" use:enhance>
+		<form method="POST" use:enhance={{}}>
 			<div class="grid gap-2">
 				<Form.Field {form} name="username">
 					<Form.Control>

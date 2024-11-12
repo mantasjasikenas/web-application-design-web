@@ -34,9 +34,10 @@
 				if (form.valid) {
 					onSubmit();
 				} else {
-					toast.error('Form is invalid');
+					toast.error('Please fill in the form correctly');
 				}
-			}
+			},
+			resetForm: false
 		})
 	);
 

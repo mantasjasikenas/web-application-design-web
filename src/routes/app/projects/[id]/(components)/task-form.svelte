@@ -41,7 +41,6 @@
 		onEditButtonClick
 	}: TaskFormProps = $props();
 
-	// FIXME: Default dueDate doesn't update on re-render
 	const form = $derived(
 		superForm(defaults(task, zod(taskSchema)), {
 			SPA: true,
@@ -50,9 +49,10 @@
 				if (form.valid) {
 					onSubmit();
 				} else {
-					toast.error('Form is invalid');
+					toast.error('Please fill in the form correctly');
 				}
-			}
+			},
+			resetForm: false
 		})
 	);
 
