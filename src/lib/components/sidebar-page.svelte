@@ -32,7 +32,7 @@
 
 <Sidebar.Provider>
 	<AppSidebar />
-	<Sidebar.Inset class="overflow-hidden">
+	<Sidebar.Inset class="overflow-hidden md:peer-data-[variant=inset]:shadow-none">
 		<header class="flex h-16 shrink-0 items-center gap-2">
 			<div class="flex items-center gap-2 px-4">
 				{@render sidebarTrigger()}

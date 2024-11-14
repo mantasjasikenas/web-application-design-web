@@ -23,7 +23,7 @@
 </script>
 
 <Card.Root
-	class="min-h-[68px] w-[258px] shrink-0 cursor-pointer shadow-md transition hover:border-solid hover:border-gray-400"
+	class="min-h-[68px] w-[258px] shrink-0 cursor-pointer transition hover:border-gray-400"
 	onclick={() => onAction('view')}
 >
 	<div class="flex flex-row gap-2 overflow-hidden p-4">
@@ -43,7 +43,7 @@
 			</div>
 
 			<div
-				class="pt-3 text-xs font-medium leading-none text-gray-300 peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+				class="pt-3 text-xs font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 dark:text-gray-300"
 			>
 				{formatDateDistance(task.dueDate)}
 			</div>
